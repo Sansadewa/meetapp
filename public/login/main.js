@@ -15,11 +15,6 @@
                     </button>`,
         token = document.head.querySelector('meta[name="_token"]').content,
         base_url = document.head.querySelector('meta[name="base_url"]').content;
-        // Check if the URL starts with "http://"
-        if (base_url.startsWith('http://') && (base_url.includes('bpskalsel.com') || base_url.includes('statkalsel.com'))) {
-            // Replace "http://" with "https://"
-            base_url = base_url.replace('http://', 'https://');
-        }
 
     /*==================================================================
     [ Focus input ]*/

@@ -163,11 +163,7 @@
                     </div>
                 `,
             chart_rapat;
-        // Check if the URL starts with "http://"
-		if (base_url.startsWith('http://') && (base_url.includes('bpskalsel.com') || base_url.includes('statkalsel.com'))) {
-			// Replace "http://" with "https://"
-			base_url = base_url.replace('http://', 'https://');
-		}
+        
         const getGrafikRapat = (tahun) => {
             return new Promise((resolve, reject) => {
                 $.ajax({

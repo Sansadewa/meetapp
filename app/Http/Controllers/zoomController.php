@@ -12,7 +12,7 @@ class zoomController extends Controller
         $zoom = new Zoom([
         'client_id' => env('ZOOM_CLIENT_ID1'),
         'client_secret' => env('ZOOM_CLIENT_SECRET1'),
-        'redirect_uri' => 'https://bpskalsel.com/meetapp/callback-zoom',
+        'redirect_uri' => env('ZOOM_REDIRECT_URI'),
         'credential_path' =>  env('ZOOM_CREDENTIALS_PATH1')
         ]);
 
@@ -24,7 +24,7 @@ class zoomController extends Controller
         $zoom = new Zoom([
             'client_id' => env('ZOOM_CLIENT_ID1'),
             'client_secret' => env('ZOOM_CLIENT_SECRET1'),
-            'redirect_uri' => 'https://bpskalsel.com/meetapp/callback-zoom',
+            'redirect_uri' => env('ZOOM_REDIRECT_URI'),
             'credential_path' =>  env('ZOOM_CREDENTIALS_PATH1')
         ]);
         
@@ -41,7 +41,7 @@ class zoomController extends Controller
         $zoom = new Zoom([
             'client_id' => env('ZOOM_CLIENT_ID1'),
             'client_secret' => env('ZOOM_CLIENT_SECRET1'),
-            'redirect_uri' => 'https://bpskalsel.com/meetapp/callback-zoom',
+            'redirect_uri' => env('ZOOM_REDIRECT_URI'),
             'credential_path' =>  env('ZOOM_CREDENTIALS_PATH1')
         ]);
         echo "<pre>";

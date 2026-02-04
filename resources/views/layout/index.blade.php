@@ -3,11 +3,6 @@
 <html dir="ltr" lang="en">
 @php
     $baseUrl = url('');
-    // Check if 'bpskalsel.com' exists in the base URL
-    if (strpos($baseUrl, 'bpskalsel.com') == true || strpos($baseUrl, 'statkalsel.com') == true) {
-        // Replace 'http://' with 'https://'
-        $baseUrl = str_replace('http://', 'https://', $baseUrl);
-    }
 @endphp
 <head>
     <meta charset="utf-8">

@@ -136,13 +136,6 @@ Route::group(["middleware" => "is_authenticated"], function() {
 
 ### ⚠️ Hardcoded Configurations (Immediate Action Required)
 
-#### WhatsApp API Token
-```php
-// File: app/Jobs/NotifWa.php:55
-$token = "4A1g7pOXRXSmNgDdQVX7YvmtQ4SFIRID6wAPmmjbwUJb9QGAyP";
-```
-**🔧 Fix**: Move to `.env` as `WA_CONNECT_TOKEN`
-
 #### Zoom Redirect URIs
 ```php
 // File: app/Http/Controllers/zoomController.php

@@ -51,9 +51,8 @@ return [
     |
     */
 
-    // 'url' => env('APP_URL', 'https://bpskalsel.com/meetapp/'),
-    'url' => env('APP_URL', 'https://' . $_SERVER['HTTP_HOST']),
-    'asset_url' => env('ASSET_URL', 'https://' . $_SERVER['HTTP_HOST']),
+    'url' => env('APP_URL', 'http://localhost'),
+    'asset_url' => env('ASSET_URL', null),
 
     /*
     |--------------------------------------------------------------------------
