@@ -364,7 +364,7 @@
                                 return;
                             }
                             // Construct the shareable URL
-                            var shareUrl = window.location.origin + '/meetapp/meeting/' + uid;
+                            var shareUrl = base_url + '/meeting/' + uid;
                             
                             // Create a temporary input element
                             var tempInput = document.createElement('input');
@@ -428,7 +428,7 @@
                                         return;
                                     }
                                     // Construct the shareable URL
-                                    var shareUrl = window.location.origin + '/meetapp/meeting/' + uid;
+                                    var shareUrl = base_url + '/meeting/' + uid;
                                     
                                     // Create a temporary input element
                                     var tempInput = document.createElement('input');
