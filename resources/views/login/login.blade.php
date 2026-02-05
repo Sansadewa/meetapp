@@ -8,14 +8,14 @@
     {{-- <meta name="base_url" content="{{ config('app.url') }}"> --}}
     <meta name="base_url" content="{{ url('') }}">
     <link rel="shortcut icon" href="{{ url('public/image/meetappico.png') }}" type="image/png">
-	<link rel="stylesheet" type="text/css" href="{{ url('public/login/bootstrap.min.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url('public/login/font-awesome-4.7.0/css/font-awesome.min.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url('public/login/iconic/css/material-design-iconic-font.min.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url('public/login/animate.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url('public/assets/login/bootstrap.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url('public/assets/login/font-awesome-4.7.0/css/font-awesome.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url('public/assets/login/iconic/css/material-design-iconic-font.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url('public/assets/login/animate.css') }}">
 	<!-- <link rel="stylesheet" type="text/css" href="{{ url('public/logo/hamburgers.min.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url('public/logo/animsition.min.css') }}"> -->
-	<link rel="stylesheet" type="text/css" href="{{ url('public/login/util.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ url('public/login/main.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url('public/assets/login/util.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url('public/assets/login/main.css') }}">
 </head>
 <body>
 	
@@ -78,12 +78,12 @@
 
 	<div id="dropDownSelect1"></div>
 	
-	<script src="{{ url('public/login/jquery-3.2.1.min.js') }}"></script>
-	<!-- <script src="{{ url('public/login/animsition.min.js') }}"></script> -->
-	<script src="{{ url('public/login/popper.js') }}"></script>
-	<script src="{{ url('public/login/bootstrap.min.js') }}"></script>
+	<script src="{{ url('public/assets/login/jquery-3.2.1.min.js') }}"></script>
+	<!-- <script src="{{ url('public/assets/login/animsition.min.js') }}"></script> -->
+	<script src="{{ url('public/assets/login/popper.js') }}"></script>
+	<script src="{{ url('public/assets/login/bootstrap.min.js') }}"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
-	<script src="{{ url('public/login/main.js') }}"></script>
+	<script src="{{ url('public/assets/login/main.js') }}"></script>
 
 </body>
 </html>
