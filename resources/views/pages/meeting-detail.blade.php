@@ -434,6 +434,28 @@
                 </div>
             </div>
             @endif
+
+            @if(!empty($customFields) && count($customFields) > 0)
+            <div class="section-box">
+                <div class="section-label">Informasi Tambahan</div>
+                <div class="info-grid">
+                    @foreach($customFields as $field)
+                    <div class="info-item">
+                        <label>{{ $field->field_key }}</label>
+                        <span>
+                            @if(filter_var($field->field_value, FILTER_VALIDATE_URL))
+                                <a href="{{ $field->field_value }}" target="_blank" style="color: #4e73df; text-decoration: none;">
+                                    {{ $field->field_value }} <i class="fa fa-external-link-alt" style="font-size: 0.8em;"></i>
+                                </a>
+                            @else
+                                {{ $field->field_value }}
+                            @endif
+                        </span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 {{-- 
             <div class="section-box">
                 <div class="section-label">Notulensi & Dokumentasi</div>

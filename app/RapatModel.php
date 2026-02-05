@@ -42,6 +42,15 @@ class RapatModel extends Model
         return $result;
     }
     
+    /**
+     * Relationship to custom fields
+     */
+    public function customFields()
+    {
+        return $this->hasMany('App\RapatCustomField', 'rapat_id', 'id')
+                    ->orderBy('field_order', 'asc');
+    }
+    
     protected static function boot()
     {
         parent::boot();

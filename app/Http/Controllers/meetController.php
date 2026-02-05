@@ -8,6 +8,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\UnitKerjaModel;
 use App\RuangModel;
 use App\RapatModel;
+use App\RapatCustomField;
 use App\NotulensiModel;
 use App\ZoomModel;
 use App\UserModel;
@@ -455,6 +456,20 @@ class meetController extends Controller
             }
         }
         
+        // Save custom fields
+        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+            foreach ($data['custom_fields'] as $index => $field) {
+                if (!empty($field['key']) && !empty($field['value'])) {
+                    RapatCustomField::create([
+                        'rapat_id' => $rapat->id,
+                        'field_key' => $field['key'],
+                        'field_value' => $field['value'],
+                        'field_order' => $index
+                    ]);
+                }
+            }
+        }
+        
         if($data['is_use_zoom'] == '1')
         {
             /* kirim notifikasi ke admin kalo ada permintaan zoom meeting
@@ -515,7 +530,13 @@ class meetController extends Controller
 
     public function getRapat(Request $request)
     {
-        $rapat = RapatModel::select('rapat.*', 'unit_kerja.nama as nama_unit_kerja', 'unit_kerja.singkatan as singkatan_unit_kerja', 'unit_kerja.class_bg')
+        $rapat = RapatModel::select(
+                'rapat.*', 
+                'unit_kerja.nama as nama_unit_kerja', 
+                'unit_kerja.singkatan as singkatan_unit_kerja', 
+                'unit_kerja.class_bg',
+                DB::raw('(SELECT COUNT(*) FROM rapat_custom_fields WHERE rapat_custom_fields.rapat_id = rapat.id) as custom_fields_count')
+            )
                 ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
                 ->get();
         echo json_encode(array('result' => $rapat, 'uk_ses' => session('unit_kerja'), 'lvl_ses' => session('level')));
@@ -528,10 +549,15 @@ class meetController extends Controller
                 ->where('rapat.id', $request->data)
                 ->first();
         $attendees = array();
+        $customFields = array();
         if ($rapat) {
             $attendees = $rapat->getAllAttendees();
+            $customFields = RapatCustomField::where('rapat_id', $rapat->id)
+                            ->orderBy('field_order', 'asc')
+                            ->get()
+                            ->toArray();
         }
-        echo json_encode(array('result' => $rapat, 'attendees' => $attendees, 'uk_ses' => session('unit_kerja'), 'lvl_ses' => session('level') ));
+        echo json_encode(array('result' => $rapat, 'attendees' => $attendees, 'custom_fields' => $customFields, 'uk_ses' => session('unit_kerja'), 'lvl_ses' => session('level') ));
     }
 
     public function editRapat(Request $request)
@@ -629,6 +655,21 @@ class meetController extends Controller
                         'rapat_id' => $rapat->id,
                         'attendee_id' => $unitKerjaId,
                         'attendee_type' => 'App\UnitKerjaModel'
+                    ]);
+                }
+            }
+        }
+        
+        // Sync custom fields (delete old ones and add new ones)
+        RapatCustomField::where('rapat_id', $rapat->id)->delete();
+        if (isset($data['custom_fields']) && is_array($data['custom_fields'])) {
+            foreach ($data['custom_fields'] as $index => $field) {
+                if (!empty($field['key']) && !empty($field['value'])) {
+                    RapatCustomField::create([
+                        'rapat_id' => $rapat->id,
+                        'field_key' => $field['key'],
+                        'field_value' => $field['value'],
+                        'field_order' => $index
                     ]);
                 }
             }
@@ -894,7 +935,13 @@ class meetController extends Controller
                 ];
             }
         }
-        return view('pages.meeting-detail', compact('rapat', 'creator', 'attendees', 'zoomDetails', 'notulensiFiles'));
+        
+        // Get custom fields
+        $customFields = RapatCustomField::where('rapat_id', $rapat->id)
+                        ->orderBy('field_order', 'asc')
+                        ->get();
+        
+        return view('pages.meeting-detail', compact('rapat', 'creator', 'attendees', 'zoomDetails', 'notulensiFiles', 'customFields'));
     }
 
     /**

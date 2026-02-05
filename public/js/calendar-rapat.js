@@ -87,6 +87,66 @@
         return await getDataEditRapat(rapat);
     }
 
+    // Custom Fields Helper Functions
+    const customFieldsHTML = (customFields = [], allowEdit = true) => {
+        let html = `
+            <div class='col-md-12 mb-4'>
+                <div class='form-group'>
+                    <label class='control-label'>
+                        Field Tambahan (Opsional)
+                        ${allowEdit ? '<button type="button" class="btn btn-sm btn-success ml-2" id="add_custom_field"><i class="fa fa-plus"></i> Tambah Field</button>' : ''}
+                    </label>
+                    <div id='custom_fields_container' class='mt-2'>
+        `;
+        
+        if (customFields && customFields.length > 0) {
+            customFields.forEach((field, index) => {
+                html += createCustomFieldRow(field.field_key, field.field_value, index, allowEdit);
+            });
+        }
+        
+        html += `
+                    </div>
+                    <small class="form-text text-muted">Tambahkan informasi tambahan seperti link rekaman, catatan khusus, dll.</small>
+                </div>
+            </div>
+        `;
+        return html;
+    };
+
+    const createCustomFieldRow = (key = '', value = '', index = 0, allowEdit = true) => {
+        if (!allowEdit) {
+            return `
+                <div class="custom-field-row mb-2 p-2" style="background: #f8f9fa; border-radius: 4px; border-left: 3px solid #4e73df;">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <strong>${key}</strong>
+                        </div>
+                        <div class="col-md-7">
+                            ${value.startsWith('http') ? `<a href="${value}" target="_blank">${value}</a>` : value}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        return `
+            <div class="custom-field-row mb-2" data-index="${index}">
+                <div class="row">
+                    <div class="col-md-5">
+                        <input type="text" class="form-control form-control-sm" name="custom_field_key[]" placeholder="Nama Field (e.g., Link Rekaman)" value="${key}" />
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control form-control-sm" name="custom_field_value[]" placeholder="Nilai (text atau URL)" value="${value}" />
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-sm btn-danger remove_custom_field" style="width: 100%;"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
     
 
 
@@ -281,6 +341,10 @@
                             <div id='attendees_hidden_edit'></div>
                         </div>
                     </div>`);
+                    
+                    // Add custom fields section
+                    const customFieldsData = val.custom_fields || [];
+                    $row.append(customFieldsHTML(customFieldsData, dtr.allow_edit));
                     
                     // Hidden unit_kerja for form submission
                     if (dtr.isAdmin) {
@@ -596,6 +660,19 @@
                         $('#zoom_label').text($(this).is(':checked') ? 'Ya' : 'Tidak');
                     });
                     
+                    // Custom fields event handlers
+                    if (dtr.allow_edit) {
+                        form.on('click', '#add_custom_field', function() {
+                            const container = $('#custom_fields_container');
+                            const newIndex = container.find('.custom-field-row').length;
+                            container.append(createCustomFieldRow('', '', newIndex, true));
+                        });
+
+                        form.on('click', '.remove_custom_field', function() {
+                            $(this).closest('.custom-field-row').remove();
+                        });
+                    }
+                    
                     // Sync visible select with hidden select for admin users
                     if (dtr.isAdmin) {
                         $('#unit_kerja_select_edit').on('change', function() {
@@ -652,6 +729,16 @@
                             // Set topik_rapat = nama_rapat
                             topik_rapat = nama_rapat;
                         
+                        // Collect custom fields
+                        var custom_fields = [];
+                        form.find('.custom-field-row').each(function(index) {
+                            var key = $(this).find('input[name="custom_field_key[]"]').val();
+                            var value = $(this).find('input[name="custom_field_value[]"]').val();
+                            if (key && value) {
+                                custom_fields.push({key: key, value: value});
+                            }
+                        });
+                        
                         if (nama_rapat !== null && nama_rapat.length != 0 && akhir_rapat != '' && mulai_rapat != '' && is_use_zoom != null) {
                             if (moment(mulai_rapat, 'hh:mm').isAfter(moment(akhir_rapat, 'hh:mm')) || moment(mulai_rapat, 'hh:mm').isSame(moment(akhir_rapat, 'hh:mm'))) {
                                 Swal.fire({
@@ -689,6 +776,7 @@
                                                         is_use_zoom: is_use_zoom,
                                                         nomor_wa: nomor_wa,
                                                         attendees: attendees,
+                                                        custom_fields: custom_fields,
                                                         rapat: calEvent.id_rapat                                                  
                                                     }
                                                 },
@@ -858,6 +946,9 @@
                     </div>
                 </div>`);
                 
+                // Add custom fields section for create form
+                $row.append(customFieldsHTML([], true));
+                
                 // Hidden unit_kerja select for form submission
                 $row.append(`<div class='col-md-12' style="display:none;">
                     <select class='form-control' name='unit_kerja'>
@@ -973,6 +1064,17 @@
                 $('#is_use_zoom').on('change', function() {
                     $('#zoom_label').text($(this).is(':checked') ? 'Ya' : 'Tidak');
                 });
+                
+                // Custom fields event handlers for create form
+                form.on('click', '#add_custom_field', function() {
+                    const container = $('#custom_fields_container');
+                    const newIndex = container.find('.custom-field-row').length;
+                    container.append(createCustomFieldRow('', '', newIndex, true));
+                });
+
+                form.on('click', '.remove_custom_field', function() {
+                    $(this).closest('.custom-field-row').remove();
+                });
 
                 $("#ruang_rapat2").on("change", function(){
                     if (this.value === "Ruang Lainnya") {
@@ -1002,6 +1104,16 @@
                         topik_rapat = nama_rapat,
                         data_tag_uk = form.find("select[name='unit_kerja'] option:selected")[0].dataset.uk,
                         data_bg_class = form.find("select[name='unit_kerja'] option:selected")[0].dataset.bgc;
+                    
+                    // Collect custom fields
+                    var custom_fields = [];
+                    form.find('.custom-field-row').each(function(index) {
+                        var key = $(this).find('input[name="custom_field_key[]"]').val();
+                        var value = $(this).find('input[name="custom_field_value[]"]').val();
+                        if (key && value) {
+                            custom_fields.push({key: key, value: value});
+                        }
+                    });
 
                     if(ruang_rapat=='Ruang Lainnya'){
                         ruang_rapat=form.find("input[name='ruang_lainnya']").val().trim()
@@ -1041,6 +1153,7 @@
                                                     is_use_zoom: is_use_zoom,
                                                     nomor_wa: nomor_wa,
                                                     attendees: attendees,
+                                                    custom_fields: custom_fields,
                                                     tanggal_mulai: temp_start.format("YYYY-MM-DD"),
                                                     tanggal_selesai: temp_end.format("YYYY-MM-DD")
                                                 }
