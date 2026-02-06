@@ -107,7 +107,7 @@
         
         html += `
                     </div>
-                    <small class="form-text text-muted">Tambahkan informasi tambahan seperti link rekaman, catatan khusus, dll.</small>
+                    <small class="form-text text-muted">Tambahkan informasi tambahan seperti link Presensi, Link Rekaman, Link Materi, dll.</small>
                 </div>
             </div>
         `;
@@ -134,10 +134,10 @@
             <div class="custom-field-row mb-2" data-index="${index}">
                 <div class="row">
                     <div class="col-md-5">
-                        <input type="text" class="form-control form-control-sm" name="custom_field_key[]" placeholder="Nama Field (e.g., Link Rekaman)" value="${key}" />
+                        <input type="text" class="form-control form-control-sm" name="custom_field_key[]" placeholder="Nama Informasi Tambahan (e.g., Link Rekaman)" value="${key}" />
                     </div>
                     <div class="col-md-6">
-                        <input type="text" class="form-control form-control-sm" name="custom_field_value[]" placeholder="Nilai (text atau URL)" value="${value}" />
+                        <input type="text" class="form-control form-control-sm" name="custom_field_value[]" placeholder="Isian (text atau link)" value="${value}" />
                     </div>
                     <div class="col-md-1">
                         <button type="button" class="btn btn-sm btn-danger remove_custom_field" style="width: 100%;"><i class="fa fa-times"></i></button>
@@ -331,7 +331,7 @@
                         </div>
                     </div>`);
                     
-                    $row.append(`<div class='col-md-12 mb-4'>
+                    $row.append(`<div class='col-md-12 mb-4'><hr style="border-top: 1px solid rgba(0, 0, 0, 0.2);">
                         <div class='form-group' style='position: relative;'>
                             <label class='control-label' data-base-label="Peserta Rapat">Peserta Rapat <span class="badge badge-info" id="attendees_count_edit">(Total: 0)</span></label>
                             <input type='text' class='form-control' id='attendees_search_edit' placeholder='Cari peserta (User atau Unit Kerja)...' ${!dtr.allow_edit ? 'disabled' : ''} autocomplete='off' />
@@ -340,6 +340,7 @@
                             <div id='attendees_display_edit' class='mt-3' style='min-height: 40px;'></div>
                             <div id='attendees_hidden_edit'></div>
                         </div>
+                        <hr style="border-top: 1px solid rgba(0, 0, 0, 0.2);">
                     </div>`);
                     
                     // Add custom fields section
@@ -935,7 +936,7 @@
                     </div>
                 </div>`);
                 
-                $row.append(`<div class='col-md-12 mb-4'>
+                $row.append(`<div class='col-md-12 mb-4'><hr style="border-top: 1px solid rgba(0, 0, 0, 0.2);">
                     <div class='form-group' style='position: relative;'>
                         <label class='control-label' data-base-label="Peserta Rapat">Peserta Rapat <span class="badge badge-info" id="attendees_count">(Total: 0)</span></label>
                         <input type='text' class='form-control' id='attendees_search' placeholder='Cari peserta (User atau Unit Kerja)...' autocomplete='off' />
@@ -944,6 +945,7 @@
                         <div id='attendees_display' class='mt-3' style='min-height: 40px;'></div>
                         <div id='attendees_hidden'></div>
                     </div>
+                    <hr style="border-top: 1px solid rgba(0, 0, 0, 0.2);">
                 </div>`);
                 
                 // Add custom fields section for create form
