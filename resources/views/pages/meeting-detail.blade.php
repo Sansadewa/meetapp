@@ -465,7 +465,7 @@
                             <div style="font-weight: bold; margin-bottom: 4px;">{{ $notulensi->nama_file }}</div>
                             <small style="color: #718096;">Diunggah: {{ date('j M Y, H:i', $notulensi->created_at) }}</small>
                         </div>
-                        <a href="{{ url('/meeting/' . $rapat->uid . '/download') }}" class="btn-download-action">
+                        <a href="{{ url('/s/' . $rapat->uid . '/download') }}" class="btn-download-action">
                             <i class="fa fa-download"></i> Unduh File
                         </a>
                     </div>
@@ -528,7 +528,7 @@
         const copyButton = document.getElementById('copy-url-link');
         const buttonText = document.getElementById('button-text');
         const toast = document.getElementById('toast');
-        const meetingUrl = '{{ url("/meeting/" . $rapat->uid) }}';
+        const meetingUrl = '{{ url("/s/" . $rapat->uid) }}';
 
         copyButton.addEventListener('click', function() {
             // Copy URL to clipboard

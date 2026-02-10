@@ -152,10 +152,10 @@
                             <i class="fa fa-map-marker-alt mr-1"></i> {{ $meeting->ruang_rapat }}
                         </span>
 
-                        <button id="share-link" data-toggle="tooltip" data-placement="top" title="Share" href="{{ url("/meeting/" . $meeting->uid) }}" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" >
+                        <button id="share-link" data-toggle="tooltip" data-placement="top" title="Share" href="{{ url("/s/" . $meeting->uid) }}" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" >
                             <i class="fa fa-share-alt"></i>
                         </button>
-                        <a data-toggle="tooltip" data-placement="top" title="Lihat Detil" href="{{ url("/meeting/" . $meeting->uid) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <a data-toggle="tooltip" data-placement="top" title="Lihat Detil" href="{{ url("/s/" . $meeting->uid) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                             <i class="fa fa-chevron-right"></i>
                         </a>
                     </div>

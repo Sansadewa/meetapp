@@ -63,6 +63,9 @@ Route::group(["middleware" => "is_authenticated"], function() {
 // Public routes (no authentication required)
 Route::get('/meeting/{uid}', 'meetController@showMeetingByUid');
 Route::get('/meeting/{uid}/download', 'meetController@downloadNotulensiByUid');
+Route::get('/s/{uid}', 'meetController@showMeetingByUid');
+Route::get('/s/{uid}/download', 'meetController@downloadNotulensiByUid');
+
 Route::get('/notulensi/download/{filename}', 'meetController@downloadNotulensiFile')
     ->name('notulensi.download');
     Route::get('/notulensi/download/', 'LoginController@login');

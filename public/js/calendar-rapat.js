@@ -429,7 +429,7 @@
                                 return;
                             }
                             // Construct the shareable URL
-                            var shareUrl = base_url + '/meeting/' + uid;
+                            var shareUrl = base_url + '/s/' + uid;
                             
                             // Create a temporary input element
                             var tempInput = document.createElement('input');
@@ -493,7 +493,7 @@
                                         return;
                                     }
                                     // Construct the shareable URL
-                                    var shareUrl = base_url + '/meeting/' + uid;
+                                    var shareUrl = base_url + '/s/' + uid;
                                     
                                     // Create a temporary input element
                                     var tempInput = document.createElement('input');
