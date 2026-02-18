@@ -188,11 +188,18 @@
         // toastr.success('I do not think that word means what you think it means.', 'Slide Down / Slide Up!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });
         // console.log(moment(info.start).format(), moment(info.end).subtract(1, 'days').format())
         
-        $.ajax({
-            url: base_url+'/edit-tangal-rapat-drag',
-            dataType: 'json',
-            type: 'POST',
-            data: {_token: token, data:{ rapat: info.id_rapat, tanggal_rapat_start:  moment(info.start).format(), tanggal_rapat_end: moment(info.end).subtract(1, 'days').format() }},
+         $.ajax({
+             url: base_url+'/edit-tangal-rapat-drag',
+             dataType: 'json',
+             type: 'POST',
+             data: {_token: token, data:{ 
+                 rapat: info.id_rapat, 
+                 ruang_rapat: info.ruang_rapat,
+                 tanggal_rapat_start: moment(info.start).format("YYYY-MM-DD"), 
+                 tanggal_rapat_end: moment(info.end).subtract(1, 'days').format("YYYY-MM-DD"),
+                 mulai_rapat: info.waktu_mulai,
+                 akhir_rapat: info.waktu_selesai
+             }},
             success: function(data) {
                 toastr.success('Berhasil merubah tanggal rapat.', 'Yeay!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });
                 // console.log(data);
@@ -218,12 +225,12 @@
             backdrop: 'static'
         });
         
-        data_edit_rapat(calEvent.id_rapat).then((val) => {
-            // Get all unit kerja (not filtered by user) for edit mode
-            getUnitKerja(null).then((uk) => {
-                let opsi_uk = '';
-                let isAdmin = val.lvl_ses == '2';
-                let allow_edit = isAdmin ? true : ( val.result.unit_kerja == val.uk_ses ? true : false );
+         data_edit_rapat(calEvent.id_rapat).then((val) => {
+             // Get all unit kerja (not filtered by user) for edit mode
+             getUnitKerja(null).then((uk) => {
+                 let opsi_uk = '';
+                 let isAdmin = val.lvl_ses == '2';
+                 let allow_edit = isAdmin ? true : (Array.isArray(val.uk_ses) && val.uk_ses.includes(parseInt(val.result.unit_kerja)));
                 
                 for (let i = 0; i < uk.result.length; i++) {
                     opsi_uk += `<option value='${uk.result[i].id}' data-bgc="${uk.result[i].class_bg}" data-uk="${uk.result[i].singkatan}" ${uk.result[i].id == val.result.unit_kerja ? 'selected' : ''}>${uk.result[i].nama}</option>`;
@@ -365,7 +372,7 @@
 
                     if(dtr.allow_edit)
                     {
-                        $this.$modal.find('.delete-event').show().end().find('.save-event').show().end().find('.modal-body').empty().prepend(form).end().find('.delete-event').unbind('click').click(function () {
+                         $this.$modal.find('.share-event').show().end().find('.delete-event').show().end().find('.save-event').show().end().find('.modal-body').empty().prepend(form).end().find('.delete-event').unbind('click').click(function () {
                             Swal.fire({
                                 type: 'question',
                                 title: 'Konfirmasi Hapus Rapat',
@@ -480,7 +487,7 @@
                         });
                     } else
                     {
-                        $this.$modal.find('.delete-event').hide().end().find('.save-event').hide().end().find('.modal-body').empty().prepend(form).end().end().find('.share-event').unbind('click').click(function () {
+                         $this.$modal.find('.share-event').show().end().find('.delete-event').hide().end().find('.save-event').hide().end().find('.modal-body').empty().prepend(form).end().end().find('.share-event').unbind('click').click(function () {
                                     // Get the UID from the form or event data
                                     var uid = form.find('input[name="uid"]').val();
                                     if (!uid) {
@@ -899,25 +906,31 @@
                     </div>
                 </div>`);
                 
-                // Row 3: Tanggal, Mulai, Selesai - 3 columns
-                $row.append(`<div class='col-md-4 mb-4'>
-                    <div class='form-group'>
-                        <label class='control-label'>Tanggal Rapat</label>
-                        <input type="text" class="form-control" disabled value="${temp_start.isSame(temp_end) ? temp_start.format("D MMM YYYY") : temp_start.format("D MMM YYYY") + ' - ' + temp_end.format("D MMM YYYY")}" />
-                    </div>
-                </div>`);
-                $row.append(`<div class='col-md-4 mb-4'>
-                    <div class='form-group'>
-                        <label class='control-label'>Mulai <span style="color:red">*</span></label>
-                        <input type="time" name="mulai_rapat" class="form-control" value="07:30">
-                    </div>
-                </div>`);
-                $row.append(`<div class='col-md-4 mb-4'>
-                    <div class='form-group'>
-                        <label class='control-label'>Selesai <span style="color:red">*</span></label>
-                        <input type="time" name="akhir_rapat" class="form-control" value="10:00">
-                    </div>
-                </div>`);
+                 // Row 3: Tanggal, Mulai, Selesai - 4 columns (split dates into 2 each)
+                 $row.append(`<div class='col-md-3 mb-4'>
+                     <div class='form-group'>
+                         <label class='control-label'>Tanggal Mulai <span style="color:red">*</span></label>
+                         <input type="text" class="form-control datepicker-rapat" name="tanggal_mulai" value="${temp_start.format("DD-MM-YYYY")}" />
+                     </div>
+                 </div>`);
+                 $row.append(`<div class='col-md-3 mb-4'>
+                     <div class='form-group'>
+                         <label class='control-label'>Tanggal Selesai <span style="color:red">*</span></label>
+                         <input type="text" class="form-control datepicker-rapat" name="tanggal_selesai" value="${temp_end.format("DD-MM-YYYY")}" />
+                     </div>
+                 </div>`);
+                 $row.append(`<div class='col-md-3 mb-4'>
+                     <div class='form-group'>
+                         <label class='control-label'>Mulai <span style="color:red">*</span></label>
+                         <input type="time" name="mulai_rapat" class="form-control" value="07:30">
+                     </div>
+                 </div>`);
+                 $row.append(`<div class='col-md-3 mb-4'>
+                     <div class='form-group'>
+                         <label class='control-label'>Selesai <span style="color:red">*</span></label>
+                         <input type="time" name="akhir_rapat" class="form-control" value="10:00">
+                     </div>
+                 </div>`);
                 
                 $row.append(`<div class='col-md-12 mb-4' id='ruang_lainnya' style='display:none;'>
                     <div class='form-group'>
@@ -1068,17 +1081,24 @@
                 });
                 
                 // Custom fields event handlers for create form
-                form.on('click', '#add_custom_field', function() {
-                    const container = $('#custom_fields_container');
-                    const newIndex = container.find('.custom-field-row').length;
-                    container.append(createCustomFieldRow('', '', newIndex, true));
-                });
+                 form.on('click', '#add_custom_field', function() {
+                     const container = $('#custom_fields_container');
+                     const newIndex = container.find('.custom-field-row').length;
+                     container.append(createCustomFieldRow('', '', newIndex, true));
+                 });
 
-                form.on('click', '.remove_custom_field', function() {
-                    $(this).closest('.custom-field-row').remove();
-                });
+                 form.on('click', '.remove_custom_field', function() {
+                     $(this).closest('.custom-field-row').remove();
+                 });
+                 
+                 // Initialize datepicker for date fields in create form
+                 $('.datepicker-rapat').datepicker({
+                     autoclose: true,
+                     todayHighlight: true,
+                     format: 'dd-mm-yyyy'
+                 });
 
-                $("#ruang_rapat2").on("change", function(){
+                 $("#ruang_rapat2").on("change", function(){
                     if (this.value === "Ruang Lainnya") {
                         let otherValue = prompt("Nama Ruang Rapat:");
                         $("#ruanglain").val(otherValue);
@@ -1089,7 +1109,7 @@
                     $("#ruanglain").val('');
                     }
                 });
-                $this.$modal.find('.share-event').show().hide().end();
+                $this.$modal.find('.share-event').hide();
                 $this.$modal.find('form').on('submit', function () {
 
                     var nama_rapat = form.find("input[name='nama_rapat']").val().trim(),
@@ -1155,9 +1175,9 @@
                                                     is_use_zoom: is_use_zoom,
                                                     nomor_wa: nomor_wa,
                                                     attendees: attendees,
-                                                    custom_fields: custom_fields,
-                                                    tanggal_mulai: temp_start.format("YYYY-MM-DD"),
-                                                    tanggal_selesai: temp_end.format("YYYY-MM-DD")
+                                                     custom_fields: custom_fields,
+                                                     tanggal_mulai: moment(form.find("input[name='tanggal_mulai']").val(), "DD-MM-YYYY").format("YYYY-MM-DD"),
+                                                     tanggal_selesai: moment(form.find("input[name='tanggal_selesai']").val(), "DD-MM-YYYY").format("YYYY-MM-DD")
                                                 }
                                             },
                                             success: function (data) {
@@ -1168,16 +1188,20 @@
                                             }
                                         })
                                     }).then((suc) => {
-                                        $this.$calendarObj.fullCalendar('renderEvent', {
-                                            id_rapat: suc.rapat,
-                                            title: mulai_rapat+' '+data_tag_uk + ': ' + nama_rapat,
-                                            start: moment(start).format(),
-                                            end: end,
-                                            allDay: true,
-                                            className: 'bg-' + data_bg_class,
-                                            is_zoom: is_use_zoom,
-                                            allow_edit: true
-                                        }, true);
+                                         $this.$calendarObj.fullCalendar('renderEvent', {
+                                             id_rapat: suc.rapat,
+                                             title: mulai_rapat+' '+data_tag_uk + ': ' + nama_rapat,
+                                             start: moment(form.find("input[name='tanggal_mulai']").val(), "DD-MM-YYYY").format("YYYY-MM-DD"),
+                                             end: moment(form.find("input[name='tanggal_selesai']").val(), "DD-MM-YYYY").add(1, 'days').format("YYYY-MM-DD"),
+                                             allDay: true,
+                                             className: 'bg-' + data_bg_class,
+                                             is_zoom: is_use_zoom,
+                                             allow_edit: true,
+                                             editable: true,
+                                             waktu_mulai: mulai_rapat,
+                                             waktu_selesai: akhir_rapat,
+                                             ruang_rapat: ruang_rapat
+                                         }, true);
                                         $("#my-event").modal('toggle');                                    
                                         return suc;
                                     }).catch((err) => {
@@ -1259,20 +1283,23 @@
 
         dataRapat().then((val) => {
             var rapat_temp = [];
-            for(let i=0; i<val.result.length; i++)
-            {                                            
-                rapat_temp.push({
-                    id_rapat: val.result[i].id,
-                    title: `${val.result[i].waktu_mulai_rapat} ${val.result[i].singkatan_unit_kerja}: ${val.result[i].nama}`,
-                    start: val.result[i].tanggal_rapat_start+'T'+val.result[i].waktu_mulai_rapat,
-                    end: moment(val.result[i].tanggal_rapat_end).add(1, 'days').format("YYYY-MM-DD"),
-                    className: 'bg-'+val.result[i].class_bg,
-                    allDay: true,
-                    is_zoom: (val.result[i].use_zoom == '1' ? true : false),
-                    allow_edit: (val.lvl_ses == '2' ? true : ( val.result[i].unit_kerja == val.uk_ses ? true: false ) ),
-                    ruang_rapat: val.result[i].ruang_rapat
-                });
-            }
+             for(let i=0; i<val.result.length; i++)
+             {                                            
+                 rapat_temp.push({
+                     id_rapat: val.result[i].id,
+                     title: `${val.result[i].waktu_mulai_rapat} ${val.result[i].singkatan_unit_kerja}: ${val.result[i].nama}`,
+                     start: val.result[i].tanggal_rapat_start+'T'+val.result[i].waktu_mulai_rapat,
+                     end: moment(val.result[i].tanggal_rapat_end).add(1, 'days').format("YYYY-MM-DD"),
+                     className: 'bg-'+val.result[i].class_bg,
+                     allDay: true,
+                     is_zoom: (val.result[i].use_zoom == '1' ? true : false),
+                     allow_edit: (val.lvl_ses == '2' ? true : (Array.isArray(val.uk_ses) && val.uk_ses.includes(parseInt(val.result[i].unit_kerja)))),
+                     editable: (val.lvl_ses == '2' ? true : (Array.isArray(val.uk_ses) && val.uk_ses.includes(parseInt(val.result[i].unit_kerja)))),
+                     waktu_mulai: val.result[i].waktu_mulai_rapat,
+                     waktu_selesai: val.result[i].waktu_selesai_rapat,
+                     ruang_rapat: val.result[i].ruang_rapat
+                 });
+             }
             return rapat_temp;
         }).then((defaultEvents) => {
             var $this = this;
@@ -1312,14 +1339,21 @@
                         element.find(".fc-title").prepend(`<i class="fas fa-video"></i> `);
                     }
                 },
-                eventResize: function (info) {
-                    // console.log(moment(info.start).format());
-                    // console.log(moment(info.end).subtract(1, 'days').format());                        
-                    $.ajax({
-                        url: base_url+'/edit-tangal-rapat-resize',
-                        dataType: 'json',
-                        type: 'POST',
-                        data: {_token: token, data: {rapat: info.id_rapat, ruang_rapat: info.ruang_rapat,tanggal_rapat_start: moment(info.start).format(), tanggal_rapat_end: moment(info.end).subtract(1, 'days').format() } },
+                 eventResize: function (info) {
+                     // console.log(moment(info.start).format());
+                     // console.log(moment(info.end).subtract(1, 'days').format());                        
+                     $.ajax({
+                         url: base_url+'/edit-tangal-rapat-resize',
+                         dataType: 'json',
+                         type: 'POST',
+                         data: {_token: token, data: {
+                             rapat: info.id_rapat, 
+                             ruang_rapat: info.ruang_rapat,
+                             tanggal_rapat_start: moment(info.start).format("YYYY-MM-DD"), 
+                             tanggal_rapat_end: moment(info.end).subtract(1, 'days').format("YYYY-MM-DD"),
+                             mulai_rapat: info.waktu_mulai,
+                             akhir_rapat: info.waktu_selesai
+                         }},
                         success: function(data) {
                             console.log('sukses');
                                 toastr.success('Berhasil merubah tanggal rapat.', 'Yeay!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });

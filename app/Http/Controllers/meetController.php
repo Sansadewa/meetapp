@@ -361,8 +361,15 @@ class meetController extends Controller
         if(isset($data['tanggal_selesai'])) $end_date = $data['tanggal_selesai'];
         else $end_date = $data['tanggal_rapat_end'];
         
-        $start_time = $data['mulai_rapat'];
-        $end_time = $data['akhir_rapat'];
+        // If time fields not provided (from resize/drag), get from existing rapat record
+        if (!isset($data['mulai_rapat']) || !isset($data['akhir_rapat'])) {
+            $existingRapat = RapatModel::find($data['rapat']);
+            $start_time = $data['mulai_rapat'] ?? $existingRapat->waktu_mulai_rapat;
+            $end_time = $data['akhir_rapat'] ?? $existingRapat->waktu_selesai_rapat;
+        } else {
+            $start_time = $data['mulai_rapat'];
+            $end_time = $data['akhir_rapat'];
+        }
         //querynya. Silahkan pahami sendiri. Mudah kok, gunakan chatGPT wkwkwk. Intinya cek overlap.
         return RapatModel::select('id','nama','ruang_rapat', 'tanggal_rapat_start', 'waktu_mulai_rapat', 'tanggal_rapat_end', 'waktu_selesai_rapat')
         ->where(function($query) use ($start_date, $end_date, $start_time, $end_time) {
@@ -530,7 +537,7 @@ class meetController extends Controller
 
     public function getRapat(Request $request)
     {
-        $rapat = RapatModel::select(
+         $rapat = RapatModel::select(
                 'rapat.*', 
                 'unit_kerja.nama as nama_unit_kerja', 
                 'unit_kerja.singkatan as singkatan_unit_kerja', 
@@ -539,25 +546,57 @@ class meetController extends Controller
             )
                 ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
                 ->get();
-        echo json_encode(array('result' => $rapat, 'uk_ses' => session('unit_kerja'), 'lvl_ses' => session('level')));
+         
+         // Get user's unit_kerja IDs for current year
+         $user_unit_kerja_ids = [];
+         $user = UserModel::find(session('user_id'));
+         if ($user && $user->level != '2') {
+             $user_unit_kerja_ids = $user->unitKerja()
+                 ->wherePivot('tahun', date('Y'))
+                 ->pluck('id')
+                 ->toArray();
+         }
+         
+         echo json_encode(array(
+             'result' => $rapat, 
+             'uk_ses' => $user_unit_kerja_ids,
+             'lvl_ses' => session('level')
+         ));
     }
 
     public function getDataRapatEdit(Request $request)
     {
-        $rapat = RapatModel::select('rapat.*', 'unit_kerja.nama as nama_unit_kerja', 'unit_kerja.singkatan as singkatan_unit_kerja', 'unit_kerja.class_bg')
+         $rapat = RapatModel::select('rapat.*', 'unit_kerja.nama as nama_unit_kerja', 'unit_kerja.singkatan as singkatan_unit_kerja', 'unit_kerja.class_bg')
                 ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
                 ->where('rapat.id', $request->data)
                 ->first();
-        $attendees = array();
-        $customFields = array();
-        if ($rapat) {
-            $attendees = $rapat->getAllAttendees();
-            $customFields = RapatCustomField::where('rapat_id', $rapat->id)
-                            ->orderBy('field_order', 'asc')
-                            ->get()
-                            ->toArray();
-        }
-        echo json_encode(array('result' => $rapat, 'attendees' => $attendees, 'custom_fields' => $customFields, 'uk_ses' => session('unit_kerja'), 'lvl_ses' => session('level') ));
+         $attendees = array();
+         $customFields = array();
+         if ($rapat) {
+             $attendees = $rapat->getAllAttendees();
+             $customFields = RapatCustomField::where('rapat_id', $rapat->id)
+                             ->orderBy('field_order', 'asc')
+                             ->get()
+                             ->toArray();
+         }
+         
+         // Get user's unit_kerja IDs for current year
+         $user_unit_kerja_ids = [];
+         $user = UserModel::find(session('user_id'));
+         if ($user && $user->level != '2') {
+             $user_unit_kerja_ids = $user->unitKerja()
+                 ->wherePivot('tahun', date('Y'))
+                 ->pluck('id')
+                 ->toArray();
+         }
+         
+         echo json_encode(array(
+             'result' => $rapat, 
+             'attendees' => $attendees, 
+             'custom_fields' => $customFields, 
+             'uk_ses' => $user_unit_kerja_ids,
+             'lvl_ses' => session('level')
+         ));
     }
 
     public function editRapat(Request $request)
