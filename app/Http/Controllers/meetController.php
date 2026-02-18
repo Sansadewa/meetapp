@@ -625,45 +625,93 @@ class meetController extends Controller
         }
 
         
-        $differences = array_diff_assoc($data,$rapat->toArray());
-        if(count($differences) > 0){
-            $messageheader = '*[Notifikasi MeetApp Kalsel]-Revisi* %0A  %0A Hai, %0A Permintaan Rapat anda direvisi oleh *'.session('nama').'* dengan perubahan sebagai berikut:  %0A ';    
-            $message = ' %0A ';
-            $message .= 'Nama rapat: '.$data['nama_rapat'];
-            $message .= ' %0A ';
-            $message .= 'Topik rapat: '.$data['topik_rapat'];
-            $message .= ' %0A ';
-            $message .= 'Jumlah Peserta: '.$data['jumlah_peserta'];
-            $message .= ' %0A ';
-            $message .= 'Ruang Rapat: '.$data['ruang_rapat'];
-            $message .= ' %0A ';
-            $message .= 'Tanggal Rapat: '.$data['tanggal_mulai'];
-            $message .= ' %0A ';
-            $message .= 'Waktu Rapat: '.$data['mulai_rapat'].' - '.$data['akhir_rapat'];
-            $message .= ' %0A ';
-            if($rapat->use_zoom==0 && $data['is_use_zoom'] == '1'){
-                $message .= '🚨*Keterangan Zoom Room: Ya*🚨';
-                $message .= ' %0A ';
-            }
-            
-            $pembuat=UserModel::find($rapat->created_by);
-            $wapembuat = array(
-                'message' => urldecode($messageheader.$message),
-                'to' => $pembuat->no_hp
-            );
-            dispatch(new NotifWa($wapembuat));  
-
-
-            $admin = NotifUmum::all();            
-            foreach($admin as $admin){
-                $messageheader2 = '*[Notifikasi MeetApp Kalsel]-Revisi* %0A  %0A Hai '.$admin->nama.', %0A  Ada Permintaan Rapat direvisi oleh *'.session('nama').'* dengan perubahan sebagai berikut:  %0A ';    
-                $waperubah = array(
-                    'message' => urldecode($messageheader2.$message),
-                    'to' => $admin->no_wa
-                );
-                dispatch(new NotifWa($waperubah)); 
-            }
-        }
+         // Define field mapping: data_key => [db_field, display_label, formatter]
+         $fieldMapping = [
+             'nama_rapat' => ['db_field' => 'nama', 'label' => 'Nama Rapat', 'type' => 'text'],
+             'topik_rapat' => ['db_field' => 'topik', 'label' => 'Topik Rapat', 'type' => 'text'],
+             'unit_kerja' => ['db_field' => 'unit_kerja', 'label' => 'Unit Kerja', 'type' => 'unit_kerja'],
+             'ruang_rapat' => ['db_field' => 'ruang_rapat', 'label' => 'Ruang Rapat', 'type' => 'text'],
+             'jumlah_peserta' => ['db_field' => 'jumlah_peserta', 'label' => 'Jumlah Peserta', 'type' => 'text'],
+             'mulai_rapat' => ['db_field' => 'waktu_mulai_rapat', 'label' => 'Waktu Mulai', 'type' => 'text'],
+             'akhir_rapat' => ['db_field' => 'waktu_selesai_rapat', 'label' => 'Waktu Selesai', 'type' => 'text'],
+             'tanggal_mulai' => ['db_field' => 'tanggal_rapat_start', 'label' => 'Tanggal Mulai', 'type' => 'date'],
+             'tanggal_selesai' => ['db_field' => 'tanggal_rapat_end', 'label' => 'Tanggal Selesai', 'type' => 'date'],
+             'is_use_zoom' => ['db_field' => 'use_zoom', 'label' => 'Sewa Zoom', 'type' => 'zoom'],
+             'nomor_wa' => ['db_field' => 'nohp_pj', 'label' => 'No. WA PJ Rapat', 'type' => 'text'],
+         ];
+         
+         // Helper function to format values for display
+         $formatValue = function($value, $type) {
+             if ($type === 'date') {
+                 if (empty($value)) return '-';
+                 try {
+                     return date('j F Y', strtotime($value));
+                 } catch (Exception $e) {
+                     return $value;
+                 }
+             } elseif ($type === 'zoom') {
+                 return ($value == '1' || $value === 1) ? 'Ya' : 'Tidak';
+             } elseif ($type === 'unit_kerja') {
+                 if (empty($value)) return '-';
+                 $uk = UnitKerjaModel::find($value);
+                 return $uk ? $uk->nama : $value;
+             }
+             return $value ?: '-';
+         };
+         
+         // Detect only changed fields
+         $changes = [];
+         foreach ($fieldMapping as $dataKey => $config) {
+             $oldValue = $rapat->{$config['db_field']};
+             $newValue = $data[$dataKey] ?? null;
+             
+             // Compare values (handle null and type casting)
+             $oldNormalized = ($config['type'] === 'zoom') ? (int)$oldValue : $oldValue;
+             $newNormalized = ($config['type'] === 'zoom') ? (int)$newValue : $newValue;
+             
+             if ($oldNormalized != $newNormalized) {
+                 $changes[] = [
+                     'label' => $config['label'],
+                     'old' => $formatValue($oldValue, $config['type']),
+                     'new' => $formatValue($newValue, $config['type']),
+                     'type' => $config['type']
+                 ];
+             }
+         }
+         
+         // Send notification only if there are actual changes
+         if (count($changes) > 0) {
+             // Build message with only changed fields
+             $changeList = '';
+             foreach ($changes as $change) {
+                 $changeList .= '%0A✏️ *' . $change['label'] . '*:';
+                 $changeList .= '%0A   Sebelum: ' . $change['old'];
+                 $changeList .= '%0A   Sesudah: ' . $change['new'];
+                 $changeList .= '%0A';
+             }
+             
+             // Notification to meeting creator
+             $pembuat = UserModel::find($rapat->created_by);
+             if ($pembuat) {
+                 $messageheader = '*[Notifikasi MeetApp Kalsel]-Revisi* %0A %0A Hai, %0A Rapat *' . $rapat->nama . '* direvisi oleh *' . session('nama') . '* dengan perubahan:%0A';
+                 $wapembuat = array(
+                     'message' => urldecode($messageheader . $changeList),
+                     'to' => $pembuat->no_hp
+                 );
+                 dispatch(new NotifWa($wapembuat));
+             }
+             
+             // Notification to admin users
+             $admin = NotifUmum::all();
+             foreach ($admin as $adminUser) {
+                 $messageheader2 = '*[Notifikasi MeetApp Kalsel]-Revisi* %0A %0A Hai ' . $adminUser->nama . ', %0A Ada rapat *' . $rapat->nama . '* direvisi oleh *' . session('nama') . '* dengan perubahan:%0A';
+                 $waperubah = array(
+                     'message' => urldecode($messageheader2 . $changeList),
+                     'to' => $adminUser->no_wa
+                 );
+                 dispatch(new NotifWa($waperubah));
+             }
+         }
         $rapat->unit_kerja = $data['unit_kerja'];
         $rapat->nama = $data['nama_rapat'];
         $rapat->ruang_rapat = $data['ruang_rapat'];
