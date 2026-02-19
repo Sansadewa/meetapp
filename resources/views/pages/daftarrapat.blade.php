@@ -30,24 +30,12 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title"><span class="lstick d-inline-block align-middle"></span> Daftar Rapat</h4>
-                <h6 class="card-subtitle">Ket: 
-                    <ol>
-                        <li>
-                        Upload dokumentasi (notulensi, foto kegiatan, daftar hadir, dsbnya) untuk setiap kegiatan (rapat, pelatihan, dsb) dengan menekan tombol upload <br> <a href="javascript: void(0)" class="btn btn-warning btn-sm mt-2 mb-2"><i class="ti ti-upload"></i> Dokumentasi</a> <br>
-                        Anda bisa mengupload seluruh dokumentasi untuk setiap kegiatan satu per satu melalui tombol upload tersebut.
-                        </li>
-                        <li class="mt-2">
-                        Download / Unduh seluruh dokumentasi (notulensi, foto kegiatan, daftar hadir, dsbnya) kegiatan yang sudah pernah anda upload dengan menekan tombol download <br><a href="javascript: void(0)" class="btn btn-primary btn-sm mt-2 mb-2"><i class="ti ti-download"></i> Dokumentasi</a> 
-                        </li>
-                        <li class="mt-2">
-                        Hapus seluruh dokumentasi (notulensi, foto kegiatan, daftar hadir, dsbnya) kegiatan yang sudah pernah anda upload dengan menekan tombol hapus <br><a href="javascript: void(0)" class="btn btn-danger btn-sm mt-2 mb-2"><i class="ti ti-close"></i> Dokumentasi</a> 
-                        </li>
-                        <li class="mt-2">
-                        Gunakan tombol zoom pada masing-masing kegiatan <br> <a href="javascript: void(0)" class="btn btn-outline-info btn-sm mt-2 mb-2"><i class="ti ti-video-camera"></i> Zoom</a> <br> untuk melihat ID Meeting, Password, dan Link Zoom Meeting yang sudah dialokasikan oleh administrator
-                        </li>
-                    </ol>
-                </h6>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title mb-0"><span class="lstick d-inline-block align-middle"></span> Daftar Rapat</h4>
+                    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#modal-tatacara">
+                        <i class="fa fa-question-circle"></i> Tata Cara Penggunaan
+                    </button>
+                </div>
                 <hr>
                 <div class="form-group">
                     <h4><label class="control-label">Pilihan Tahun</label></h4>
@@ -66,10 +54,9 @@
                             <tr>
                                 <th>Tanggal Mulai Rapat</th>
                                 <th width="20%">Waktu</th>
-                                <th width="25%">Nama Rapat</th>
-                                <th width="25%">Topik Rapat</th>
+                                <th width="30%">Nama Rapat</th>
                                 <th width="15%">Unit Kerja</th>
-                                <th>Action</th>
+                                <th width="35%">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,9 +66,8 @@
                                 <th>Tanggal Mulai Rapat</th>
                                 <th>Waktu</th>
                                 <th>Nama Rapat</th>
-                                <th>Topik Rapat</th>
                                 <th>Unit Kerja</th>
-                                <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -91,7 +77,51 @@
     </div>
 </div>
 
-<!-- Info Header Modal -->
+<!-- Tata Cara Modal -->
+<div id="modal-tatacara" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tatacara-modalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header modal-colored-header bg-info">
+                <h4 class="modal-title text-white" id="tatacara-modalLabel">
+                    <i class="fa fa-question-circle"></i> Tata Cara Penggunaan
+                </h4>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body">
+                <ol style="line-height: 1.8;">
+                    <li class="mb-3">
+                        <strong>Upload Dokumentasi</strong><br>
+                        Upload dokumentasi (notulensi, foto kegiatan, daftar hadir, dsbnya) untuk setiap kegiatan (rapat, pelatihan, dsb) dengan menekan tombol upload 
+                        <br><a href="javascript: void(0)" class="btn btn-warning btn-sm mt-2"><i class="ti ti-upload"></i> Upload</a> 
+                        <br>Anda bisa mengupload seluruh dokumentasi untuk setiap kegiatan satu per satu melalui tombol upload tersebut.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Download Dokumentasi</strong><br>
+                        Download / Unduh seluruh dokumentasi (notulensi, foto kegiatan, daftar hadir, dsbnya) kegiatan yang sudah pernah anda upload dengan menekan tombol download 
+                        <br><a href="javascript: void(0)" class="btn btn-primary btn-sm mt-2"><i class="ti ti-download"></i></a> 
+                    </li>
+                    <li class="mb-3">
+                        <strong>Hapus Dokumentasi</strong><br>
+                        Hapus seluruh dokumentasi (notulensi, foto kegiatan, daftar hadir, dsbnya) kegiatan yang sudah pernah anda upload dengan menekan tombol hapus 
+                        <br><a href="javascript: void(0)" class="btn btn-danger btn-sm mt-2"><i class="ti ti-close"></i></a> 
+                    </li>
+                    <li class="mb-3">
+                        <strong>Zoom Meeting</strong><br>
+                        Gunakan tombol zoom pada masing-masing kegiatan 
+                        <br><a href="javascript: void(0)" class="btn btn-outline-info btn-sm mt-2"><i class="ti ti-video-camera"></i> Zoom</a> 
+                        <br>untuk melihat ID Meeting, Password, dan Link Zoom Meeting yang sudah dialokasikan oleh administrator
+                    </li>
+                </ol>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Zoom Detail Modal -->
 <div id="modal-zoom" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-header-modalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
@@ -150,10 +180,15 @@
                 url: base_url + '/get-rapat',
                 dataSrc: function (data) {
                     data.forEach((item, index) => {
-
-                        data[index].nama_rapat = (item.use_zoom == '1' ?
-                            `${item.nama}<br/><button data-zoom="${item.id}" data-toggle="tooltip" data-placement="bottom" title="Detail Zoom Meeting" class="btn btn-outline-info btn-sm zoom-id mt-2"><i class="ti ti-video-camera"></i> Zoom</button>` :
-                            `${item.nama}`);
+                        // Documentation status badge
+                        var docBadge = item.is_notulensi == '1' 
+                            ? '<br/><span class="badge badge-success mt-1"><i class="fa fa-check mr-1"></i>Dokumentasi Lengkap</span>'
+                            : '<br/><span class="badge badge-warning mt-1"><i class="fa fa-exclamation mr-1"></i>Belum Ada Dokumentasi</span>';
+                        
+                        // Nama Rapat with documentation badge
+                        data[index].nama_rapat = item.nama + docBadge;
+                        
+                        // Waktu formatting
                         data[index].waktu_rapat = (moment(item.tanggal_rapat_start).isSame(
                                     moment(item.tanggal_rapat_end)) ? moment(item
                                     .tanggal_rapat_start).format("D MMM YYYY") : moment(item
@@ -161,12 +196,25 @@
                                 moment(item.tanggal_rapat_end).format("D MMM YYYY")) +
                             '<br/>' + item.waktu_mulai_rapat + ' s.d ' + item
                             .waktu_selesai_rapat + ' WITA';
-                        data[index].action =
-                            `
-                        <a href="${base_url}/meeting/${item.uid}" target="_blank" class="btn btn-success btn-sm mt-2 detail-rapat" data-toggle="tooltip" data-placement="right" title="Detail Rapat"><i class=" fa fa-info-circle"></i> Detail Rapat</a> <br/> <br/> 
-                        ${item.is_notulensi == '1' ? '<button data-rapat = "'+item.id+'" class="btn btn-primary btn-sm download-notulensi" data-toggle="tooltip" data-placement="right" title="Download Dokumentasi"><i class="ti ti-download"></i> Dokumentasi</button> <br/>' : '<span style="background-color: #a0f0f4;padding: 5px;border-radius: 5px;color: black; font-size:small"><i class="ti ti-notepad"></i> Dokumentasi belum tersedia</span> <br/>'} 
-                        <button data-rapat = "${item.id}" class="btn btn-warning btn-sm mt-2 upload-notulensi" data-toggle="tooltip" data-placement="right" title="Upload Dokumentasi"><i class="ti ti-upload"></i> Dokumentasi</button> <br/> 
-                        ${item.is_notulensi == '1' ? '<button data-rapat = "'+item.id+'" class="btn btn-danger btn-sm mt-2 hapus-notulensi" data-toggle="tooltip" data-placement="right" title="Hapus Dokumentasi"><i class="ti ti-close"></i> Dokumentasi</button>' : ''}`;
+                        
+                        // Action buttons
+                        var zoomBtn = item.use_zoom == '1' 
+                            ? `<button data-zoom="${item.id}" class="btn btn-outline-info btn-sm zoom-id mr-1 mb-1" data-toggle="tooltip" title="Detail Zoom Meeting"><i class="ti ti-video-camera"></i> Zoom</button>`
+                            : '';
+                        
+                        var detailBtn = `<a href="${base_url}/meeting/${item.uid}" target="_blank" class="btn btn-success btn-sm mr-1 mb-1" data-toggle="tooltip" title="Detail Rapat"><i class="fa fa-info-circle"></i> Detail</a>`;
+                        
+                        var downloadBtn = item.is_notulensi == '1'
+                            ? `<button data-rapat="${item.id}" class="btn btn-primary btn-sm download-notulensi mr-1 mb-1" data-toggle="tooltip" title="Download Dokumentasi"><i class="ti ti-download"></i></button>`
+                            : '';
+                        
+                        var uploadBtn = `<button data-rapat="${item.id}" class="btn btn-warning btn-sm upload-notulensi mr-1 mb-1" data-toggle="tooltip" title="Upload Dokumentasi"><i class="ti ti-upload"></i></button>`;
+                        
+                        var deleteBtn = item.is_notulensi == '1'
+                            ? `<button data-rapat="${item.id}" class="btn btn-danger btn-sm hapus-notulensi mb-1" data-toggle="tooltip" title="Hapus Dokumentasi"><i class="ti ti-close"></i></button>`
+                            : '';
+                        
+                        data[index].action = zoomBtn + detailBtn + downloadBtn + uploadBtn + deleteBtn;
                     });
                     return data;
                 }
@@ -178,24 +226,12 @@
                     <div class="bounce3"></div>
                 </div>`
             },
-            columns: [{
-                    data: 'tanggal_rapat_start'
-                },
-                {
-                    data: 'waktu_rapat'
-                },
-                {
-                    data: 'nama_rapat'
-                },
-                {
-                    data: 'topik'
-                },
-                {
-                    data: 'nama_unit_kerja'
-                },
-                {
-                    data: 'action',
-                }
+            columns: [
+                { data: 'tanggal_rapat_start' },
+                { data: 'waktu_rapat' },
+                { data: 'nama_rapat' },
+                { data: 'nama_unit_kerja' },
+                { data: 'action' }
             ],
             columnDefs: [{
                     orderData: 0,
