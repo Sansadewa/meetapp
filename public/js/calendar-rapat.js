@@ -147,7 +147,49 @@
         `;
     };
 
-    
+    // Function to update calendar legend based on loaded events
+    const updateCalendarLegend = (events) => {
+        var $container = $('#calendar-events');
+        
+        // Extract unique unit_kerja from events
+        var uniqueUnits = {};
+        events.forEach(function(item) {
+            var key = item.singkatan_unit_kerja;
+            if (!uniqueUnits[key]) {
+                uniqueUnits[key] = {
+                    nama: item.nama_unit_kerja,
+                    singkatan: item.singkatan_unit_kerja,
+                    class_bg: item.class_bg,
+                    count: 0
+                };
+            }
+            uniqueUnits[key].count++;
+        });
+        
+        // Handle empty state
+        if (Object.keys(uniqueUnits).length === 0) {
+            $container.html('<div class="text-muted small">Tidak ada rapat di periode ini</div>');
+            return;
+        }
+        
+        // Sort alphabetically by full name
+        var sortedUnits = Object.values(uniqueUnits).sort(function(a, b) {
+            return a.nama.localeCompare(b.nama);
+        });
+        
+        // Render legend items
+        $container.empty();
+        sortedUnits.forEach(function(unit) {
+            $container.append(
+                '<div class="calendar-events mb-3">' +
+                    '<i class="fa fa-circle text-' + unit.class_bg + ' mr-2"></i>' +
+                    unit.nama + ' (' + unit.singkatan + ') ' +
+                    '<span class="badge badge-secondary">' + unit.count + '</span>' +
+                '</div>'
+            );
+        });
+    };
+
 
 
 
@@ -1306,39 +1348,44 @@
                         end: end.format('YYYY-MM-DD')
                     },
                     success: function(data) {
-                        // Cache session data from response
-                        if (cachedUkSes === null) {
-                            cachedUkSes = data.uk_ses;
-                            cachedLvlSes = data.lvl_ses;
-                        }
-                        
-                        var events = [];
-                        for (var i = 0; i < data.result.length; i++) {
-                            var item = data.result[i];
-                            var allowEdit = (cachedLvlSes == '2') || 
-                                (Array.isArray(cachedUkSes) && cachedUkSes.includes(parseInt(item.unit_kerja)));
-                            
-                            events.push({
-                                id_rapat: item.id,
-                                title: item.waktu_mulai_rapat + ' ' + item.singkatan_unit_kerja + ': ' + item.nama,
-                                start: item.tanggal_rapat_start + 'T' + item.waktu_mulai_rapat,
-                                end: moment(item.tanggal_rapat_end).add(1, 'days').format("YYYY-MM-DD"),
-                                className: 'bg-' + item.class_bg,
-                                allDay: true,
-                                is_zoom: (item.use_zoom == '1'),
-                                allow_edit: allowEdit,
-                                editable: allowEdit,
-                                waktu_mulai: item.waktu_mulai_rapat,
-                                waktu_selesai: item.waktu_selesai_rapat,
-                                ruang_rapat: item.ruang_rapat
-                            });
-                        }
-                        callback(events);
-                    },
-                    error: function(err) {
-                        console.error('Failed to load calendar events:', err);
-                        callback([]);
-                    }
+                         // Cache session data from response
+                         if (cachedUkSes === null) {
+                             cachedUkSes = data.uk_ses;
+                             cachedLvlSes = data.lvl_ses;
+                         }
+                         
+                         var events = [];
+                         for (var i = 0; i < data.result.length; i++) {
+                             var item = data.result[i];
+                             var allowEdit = (cachedLvlSes == '2') || 
+                                 (Array.isArray(cachedUkSes) && cachedUkSes.includes(parseInt(item.unit_kerja)));
+                             
+                             events.push({
+                                 id_rapat: item.id,
+                                 title: item.waktu_mulai_rapat + ' ' + item.singkatan_unit_kerja + ': ' + item.nama,
+                                 start: item.tanggal_rapat_start + 'T' + item.waktu_mulai_rapat,
+                                 end: moment(item.tanggal_rapat_end).add(1, 'days').format("YYYY-MM-DD"),
+                                 className: 'bg-' + item.class_bg,
+                                 allDay: true,
+                                 is_zoom: (item.use_zoom == '1'),
+                                 allow_edit: allowEdit,
+                                 editable: allowEdit,
+                                 waktu_mulai: item.waktu_mulai_rapat,
+                                 waktu_selesai: item.waktu_selesai_rapat,
+                                 ruang_rapat: item.ruang_rapat
+                             });
+                         }
+                         
+                         // Update legend with raw data (contains nama_unit_kerja)
+                         updateCalendarLegend(data.result);
+                         
+                         callback(events);
+                     },
+                     error: function(err) {
+                         console.error('Failed to load calendar events:', err);
+                         $('#calendar-events').html('<div class="text-muted small text-danger">Gagal memuat data</div>');
+                         callback([]);
+                     }
                 });
             },
             

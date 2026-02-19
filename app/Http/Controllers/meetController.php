@@ -221,13 +221,10 @@ class meetController extends Controller
         echo json_encode($this->grafikRapatTahunan($request->data));
     }
 
-    public function getBuatRapatPage(Request $request)
-    {
-        $data = array(
-            'unit_kerja' => UnitKerjaModel::all()
-        );
-        return view('pages.buatrapat', $data);
-    }
+     public function getBuatRapatPage(Request $request)
+     {
+         return view('pages.buatrapat');
+     }
 
     public function getDaftarRapatPage(Request $request)
     {
@@ -551,6 +548,7 @@ class meetController extends Controller
                  'rapat.use_zoom',
                  'rapat.unit_kerja',
                  'rapat.ruang_rapat',
+                 'unit_kerja.nama as nama_unit_kerja',
                  'unit_kerja.singkatan as singkatan_unit_kerja',
                  'unit_kerja.class_bg'
              )

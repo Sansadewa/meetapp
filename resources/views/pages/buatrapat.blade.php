@@ -138,13 +138,9 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div id="calendar-events" class="">
-                                        @foreach($unit_kerja as $uk)
-                                        <div class="calendar-events mb-3 ui-draggable ui-draggable-handle"
-                                            data-class="bg-{{$uk->class_bg}}"
-                                            style="position: relative; z-index: auto; left: 0px; top: 0px;"><i
-                                                class="fa fa-circle text-{{ $uk->class_bg }} mr-2"></i>{{$uk->nama}} ({{ $uk->singkatan }})
+                                        <div class="text-muted small" id="legend-loading">
+                                            <i class="fa fa-spinner fa-spin mr-1"></i> Memuat keterangan...
                                         </div>
-                                        @endforeach                                        
                                     </div>
                                 </div>
                             </div>
