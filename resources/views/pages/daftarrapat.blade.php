@@ -215,6 +215,12 @@
         });
         $('.buttons-copy, .buttons-csv, .buttons-print, .buttons-pdf, .buttons-excel').addClass(
             'btn btn-primary mr-1');
+        
+        // Handle year filter change
+        $('#tahun').on('change', function() {
+            var selectedYear = $(this).val();
+            tabel_rapat.ajax.url(base_url + '/get-rapat?tahun=' + selectedYear).load();
+        });
 
         $("#file_export tbody").on('click', '.zoom-id', function () {
             $("#modal-zoom").modal('toggle');

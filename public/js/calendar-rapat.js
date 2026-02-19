@@ -1275,117 +1275,146 @@
     // console.log(new Date($.now()));
     CalendarApp.prototype.init = function() {
         this.enableDrag();
-                
-
-        const dataRapat = async () => {
-            return await getDataRapat();
-        }
-
-        dataRapat().then((val) => {
-            var rapat_temp = [];
-             for(let i=0; i<val.result.length; i++)
-             {                                            
-                 rapat_temp.push({
-                     id_rapat: val.result[i].id,
-                     title: `${val.result[i].waktu_mulai_rapat} ${val.result[i].singkatan_unit_kerja}: ${val.result[i].nama}`,
-                     start: val.result[i].tanggal_rapat_start+'T'+val.result[i].waktu_mulai_rapat,
-                     end: moment(val.result[i].tanggal_rapat_end).add(1, 'days').format("YYYY-MM-DD"),
-                     className: 'bg-'+val.result[i].class_bg,
-                     allDay: true,
-                     is_zoom: (val.result[i].use_zoom == '1' ? true : false),
-                     allow_edit: (val.lvl_ses == '2' ? true : (Array.isArray(val.uk_ses) && val.uk_ses.includes(parseInt(val.result[i].unit_kerja)))),
-                     editable: (val.lvl_ses == '2' ? true : (Array.isArray(val.uk_ses) && val.uk_ses.includes(parseInt(val.result[i].unit_kerja)))),
-                     waktu_mulai: val.result[i].waktu_mulai_rapat,
-                     waktu_selesai: val.result[i].waktu_selesai_rapat,
-                     ruang_rapat: val.result[i].ruang_rapat
-                 });
-             }
-            return rapat_temp;
-        }).then((defaultEvents) => {
-            var $this = this;
-            $this.$calendarObj = $this.$calendar.fullCalendar({
-                slotDuration: '00:15:00',
-                /* If we want to split day time each 15minutes */
-                minTime: '08:00:00',
-                maxTime: '19:00:00',
-                defaultView: 'month',
-                handleWindowResize: true,
-                selectLongPressDelay: 1000,
-                header: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    // right: 'month,agendaWeek,agendaDay'                        
-                },
-                events: defaultEvents,
-                // resizable: true,
-                editable: true,
-                droppable: true, // this allows things to be dropped onto the calendar !!!
-                eventLimit: true, // allow "more" link when too many events
-                selectable: true,
-                drop: function (date) {
-                    $this.onDrop($(this), date);
-                },
-                select: function (start, end, allDay) {
-                    $this.onSelect(start, end, allDay);
-                },
-                eventClick: function (calEvent, jsEvent, view) {
-                    $this.onEventClick(calEvent, jsEvent, view);
-                },
-                eventDrop: function (info) {
-                    $this.onDragDrop(info);
-                },
-                eventRender: function (event, element) {
-                    if (event.is_zoom) {
-                        element.find(".fc-title").prepend(`<i class="fas fa-video"></i> `);
-                    }
-                },
-                 eventResize: function (info) {
-                     // console.log(moment(info.start).format());
-                     // console.log(moment(info.end).subtract(1, 'days').format());                        
-                     $.ajax({
-                         url: base_url+'/edit-tangal-rapat-resize',
-                         dataType: 'json',
-                         type: 'POST',
-                         data: {_token: token, data: {
-                             rapat: info.id_rapat, 
-                             ruang_rapat: info.ruang_rapat,
-                             tanggal_rapat_start: moment(info.start).format("YYYY-MM-DD"), 
-                             tanggal_rapat_end: moment(info.end).subtract(1, 'days').format("YYYY-MM-DD"),
-                             mulai_rapat: info.waktu_mulai,
-                             akhir_rapat: info.waktu_selesai
-                         }},
-                        success: function(data) {
-                            console.log('sukses');
-                                toastr.success('Berhasil merubah tanggal rapat.', 'Yeay!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });
-                        },
-                        error: function(err) {
-                            console.log(err.responseText);
-                            toastr.error('Gagal merubah tanggal rapat.', 'Wadooh!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });
+        
+        var $this = this;
+        var cachedUkSes = null;
+        var cachedLvlSes = null;
+        
+        $this.$calendarObj = $this.$calendar.fullCalendar({
+            slotDuration: '00:15:00',
+            /* If we want to split day time each 15minutes */
+            minTime: '08:00:00',
+            maxTime: '19:00:00',
+            defaultView: 'month',
+            handleWindowResize: true,
+            selectLongPressDelay: 1000,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                // right: 'month,agendaWeek,agendaDay'                        
+            },
+            
+            // Dynamic event loading based on calendar view range
+            events: function(start, end, timezone, callback) {
+                $.ajax({
+                    url: base_url + '/get-data-rapat',
+                    dataType: 'json',
+                    type: 'GET',
+                    data: {
+                        start: start.format('YYYY-MM-DD'),
+                        end: end.format('YYYY-MM-DD')
+                    },
+                    success: function(data) {
+                        // Cache session data from response
+                        if (cachedUkSes === null) {
+                            cachedUkSes = data.uk_ses;
+                            cachedLvlSes = data.lvl_ses;
                         }
-                    })
-                },
-                eventAllow: function (info, draggedEvent) {
-                    // console.log(dropInfo, draggedEvent)
-                    return draggedEvent.allow_edit;
-                    // console.log(moment(info.start).format());
-                    // console.log(moment(info.end).subtract(1, 'days').format());  
+                        
+                        var events = [];
+                        for (var i = 0; i < data.result.length; i++) {
+                            var item = data.result[i];
+                            var allowEdit = (cachedLvlSes == '2') || 
+                                (Array.isArray(cachedUkSes) && cachedUkSes.includes(parseInt(item.unit_kerja)));
+                            
+                            events.push({
+                                id_rapat: item.id,
+                                title: item.waktu_mulai_rapat + ' ' + item.singkatan_unit_kerja + ': ' + item.nama,
+                                start: item.tanggal_rapat_start + 'T' + item.waktu_mulai_rapat,
+                                end: moment(item.tanggal_rapat_end).add(1, 'days').format("YYYY-MM-DD"),
+                                className: 'bg-' + item.class_bg,
+                                allDay: true,
+                                is_zoom: (item.use_zoom == '1'),
+                                allow_edit: allowEdit,
+                                editable: allowEdit,
+                                waktu_mulai: item.waktu_mulai_rapat,
+                                waktu_selesai: item.waktu_selesai_rapat,
+                                ruang_rapat: item.ruang_rapat
+                            });
+                        }
+                        callback(events);
+                    },
+                    error: function(err) {
+                        console.error('Failed to load calendar events:', err);
+                        callback([]);
+                    }
+                });
+            },
+            
+            loading: function(isLoading) {
+                if (isLoading) {
+                    $("#spin-calendar").show();
+                } else {
+                    $("#spin-calendar").hide();
                 }
-
-            });
-
-            //on new event
-            this.$saveCategoryBtn.on('click', function () {
-                var categoryName = $this.$categoryForm.find("input[name='category-name']").val();
-                var categoryColor = $this.$categoryForm.find("select[name='category-color']").val();
-                if (categoryName !== null && categoryName.length != 0) {
-                    $this.$extEvents.append('<div class="calendar-events m-b-20" data-class="bg-' + categoryColor + '" style="position: relative;"><i class="fa fa-circle text-' + categoryColor + ' m-r-10" ></i>' + categoryName + '</div>')
-                    $this.enableDrag();
+            },
+            
+            // resizable: true,
+            editable: true,
+            droppable: true, // this allows things to be dropped onto the calendar !!!
+            eventLimit: true, // allow "more" link when too many events
+            selectable: true,
+            drop: function (date) {
+                $this.onDrop($(this), date);
+            },
+            select: function (start, end, allDay) {
+                $this.onSelect(start, end, allDay);
+            },
+            eventClick: function (calEvent, jsEvent, view) {
+                $this.onEventClick(calEvent, jsEvent, view);
+            },
+            eventDrop: function (info) {
+                $this.onDragDrop(info);
+            },
+            eventRender: function (event, element) {
+                if (event.is_zoom) {
+                    element.find(".fc-title").prepend(`<i class="fas fa-video"></i> `);
                 }
+            },
+            eventResize: function (info) {
+                // console.log(moment(info.start).format());
+                // console.log(moment(info.end).subtract(1, 'days').format());                        
+                $.ajax({
+                    url: base_url+'/edit-tangal-rapat-resize',
+                    dataType: 'json',
+                    type: 'POST',
+                    data: {_token: token, data: {
+                        rapat: info.id_rapat, 
+                        ruang_rapat: info.ruang_rapat,
+                        tanggal_rapat_start: moment(info.start).format("YYYY-MM-DD"), 
+                        tanggal_rapat_end: moment(info.end).subtract(1, 'days').format("YYYY-MM-DD"),
+                        mulai_rapat: info.waktu_mulai,
+                        akhir_rapat: info.waktu_selesai
+                    }},
+                   success: function(data) {
+                       console.log('sukses');
+                           toastr.success('Berhasil merubah tanggal rapat.', 'Yeay!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });
+                   },
+                   error: function(err) {
+                       console.log(err.responseText);
+                       toastr.error('Gagal merubah tanggal rapat.', 'Wadooh!', { "showMethod": "fadeIn", "hideMethod": "fadeOut", timeOut: 2000 });
+                   }
+               })
+            },
+            eventAllow: function (info, draggedEvent) {
+                // console.log(dropInfo, draggedEvent)
+                return draggedEvent.allow_edit;
+                // console.log(moment(info.start).format());
+                // console.log(moment(info.end).subtract(1, 'days').format());  
+            }
 
-            });
+        });
 
-            $("#spin-calendar").hide()
-        });           
+        //on new event
+        this.$saveCategoryBtn.on('click', function () {
+            var categoryName = $this.$categoryForm.find("input[name='category-name']").val();
+            var categoryColor = $this.$categoryForm.find("select[name='category-color']").val();
+            if (categoryName !== null && categoryName.length != 0) {
+                $this.$extEvents.append('<div class="calendar-events m-b-20" data-class="bg-' + categoryColor + '" style="position: relative;"><i class="fa fa-circle text-' + categoryColor + ' m-r-10" ></i>' + categoryName + '</div>')
+                $this.enableDrag();
+            }
+
+        });
     },
 
     //init CalendarApp

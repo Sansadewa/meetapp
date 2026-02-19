@@ -535,34 +535,54 @@ class meetController extends Controller
         echo json_encode(array('result' => 'sukses', 'rapat' => $rapat->id));
     }
 
-    public function getRapat(Request $request)
-    {
-         $rapat = RapatModel::select(
-                'rapat.*', 
-                'unit_kerja.nama as nama_unit_kerja', 
-                'unit_kerja.singkatan as singkatan_unit_kerja', 
-                'unit_kerja.class_bg',
-                DB::raw('(SELECT COUNT(*) FROM rapat_custom_fields WHERE rapat_custom_fields.rapat_id = rapat.id) as custom_fields_count')
-            )
-                ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
-                ->get();
-         
-         // Get user's unit_kerja IDs for current year
-         $user_unit_kerja_ids = [];
-         $user = UserModel::find(session('user_id'));
-         if ($user && $user->level != '2') {
-             $user_unit_kerja_ids = $user->unitKerja()
-                 ->wherePivot('tahun', date('Y'))
-                 ->pluck('id')
-                 ->toArray();
-         }
-         
-         echo json_encode(array(
-             'result' => $rapat, 
-             'uk_ses' => $user_unit_kerja_ids,
-             'lvl_ses' => session('level')
-         ));
-    }
+     public function getRapat(Request $request)
+     {
+          // Get date range from FullCalendar
+          $start = $request->input('start');
+          $end = $request->input('end');
+          
+          $query = RapatModel::select(
+                 'rapat.id',
+                 'rapat.nama',
+                 'rapat.tanggal_rapat_start',
+                 'rapat.tanggal_rapat_end',
+                 'rapat.waktu_mulai_rapat',
+                 'rapat.waktu_selesai_rapat',
+                 'rapat.use_zoom',
+                 'rapat.unit_kerja',
+                 'rapat.ruang_rapat',
+                 'unit_kerja.singkatan as singkatan_unit_kerja',
+                 'unit_kerja.class_bg'
+             )
+                 ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja');
+          
+          // Apply date range filter if provided
+          if ($start && $end) {
+              $query->where(function($q) use ($start, $end) {
+                  // Events that overlap with the requested range
+                  $q->where('rapat.tanggal_rapat_start', '<=', $end)
+                    ->where('rapat.tanggal_rapat_end', '>=', $start);
+              });
+          }
+          
+          $rapat = $query->get();
+          
+          // Get user's unit_kerja IDs for current year
+          $user_unit_kerja_ids = [];
+          $user = UserModel::find(session('user_id'));
+          if ($user && $user->level != '2') {
+              $user_unit_kerja_ids = $user->unitKerja()
+                  ->wherePivot('tahun', date('Y'))
+                  ->pluck('unit_kerja.id')
+                  ->toArray();
+          }
+          
+          echo json_encode(array(
+              'result' => $rapat, 
+              'uk_ses' => $user_unit_kerja_ids,
+              'lvl_ses' => session('level')
+          ));
+     }
 
     public function getDataRapatEdit(Request $request)
     {
@@ -822,21 +842,37 @@ class meetController extends Controller
         echo json_encode(array('result' => 'sukses'));
     }
 
-    public function getRapatAll(Request $request)
-    {
-        $uk_user = session('unit_kerja');
-        $lv_user = session('level');
-        $rapat = RapatModel::select('rapat.*', 'unit_kerja.nama as nama_unit_kerja')
-                    ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
-                    ->where(function($query) use ($uk_user, $lv_user) {
-                        if($lv_user != '2')
-                        {
-                            $query->where('unit_kerja', $uk_user);
-                        }
-                    })
-                    ->get();
-        echo json_encode($rapat);
-    }
+     public function getRapatAll(Request $request)
+     {
+         $uk_user = session('unit_kerja');
+         $lv_user = session('level');
+         $tahun = $request->input('tahun', date('Y'));
+         
+         $rapat = RapatModel::select(
+                 'rapat.id',
+                 'rapat.uid',
+                 'rapat.nama',
+                 'rapat.topik',
+                 'rapat.tanggal_rapat_start',
+                 'rapat.tanggal_rapat_end',
+                 'rapat.waktu_mulai_rapat',
+                 'rapat.waktu_selesai_rapat',
+                 'rapat.use_zoom',
+                 'rapat.is_notulensi',
+                 'unit_kerja.nama as nama_unit_kerja'
+             )
+             ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
+             ->whereYear('rapat.tanggal_rapat_start', $tahun)
+             ->where(function($query) use ($uk_user, $lv_user) {
+                 if($lv_user != '2')
+                 {
+                     $query->where('unit_kerja', $uk_user);
+                 }
+             })
+             ->get();
+         
+         echo json_encode($rapat);
+     }
 
     public function getDetailZoom(Request $request)
     {
