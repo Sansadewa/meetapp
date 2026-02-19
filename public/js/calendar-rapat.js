@@ -153,6 +153,7 @@
         
         // Extract unique unit_kerja from events
         var uniqueUnits = {};
+        var totalCount = 0;
         events.forEach(function(item) {
             var key = item.singkatan_unit_kerja;
             if (!uniqueUnits[key]) {
@@ -164,6 +165,7 @@
                 };
             }
             uniqueUnits[key].count++;
+            totalCount++;
         });
         
         // Handle empty state
@@ -179,6 +181,19 @@
         
         // Render legend items
         $container.empty();
+        
+        // Add total meetings badge at top
+        $container.append(
+            '<div class="mb-4 pb-3 border-bottom">' +
+                '<div style="font-weight: bold; color: #333; margin-bottom: 8px;">Keterangan</div>' +
+                '<div class="d-flex align-items-center justify-content-between">' +
+                    '<span class="text-muted small">Total Rapat Bulan Ini</span>' +
+                    '<span class="badge badge-primary" style="font-size: 1.1em; padding: 0.5em 0.75em;">' + totalCount + '</span>' +
+                '</div>' +
+            '</div>'
+        );
+        
+        // Add individual unit legend items
         sortedUnits.forEach(function(unit) {
             $container.append(
                 '<div class="calendar-events mb-3">' +
