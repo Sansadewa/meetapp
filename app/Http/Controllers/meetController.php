@@ -361,8 +361,8 @@ class meetController extends Controller
         // If time fields not provided (from resize/drag), get from existing rapat record
         if (!isset($data['mulai_rapat']) || !isset($data['akhir_rapat'])) {
             $existingRapat = RapatModel::find($data['rapat']);
-            $start_time = $data['mulai_rapat'] ?? $existingRapat->waktu_mulai_rapat;
-            $end_time = $data['akhir_rapat'] ?? $existingRapat->waktu_selesai_rapat;
+            $start_time = isset($data['mulai_rapat']) ? $data['mulai_rapat'] : $existingRapat->waktu_mulai_rapat;
+            $end_time = isset($data['akhir_rapat']) ? $data['akhir_rapat'] : $existingRapat->waktu_selesai_rapat;
         } else {
             $start_time = $data['mulai_rapat'];
             $end_time = $data['akhir_rapat'];
@@ -681,7 +681,7 @@ class meetController extends Controller
          $changes = [];
          foreach ($fieldMapping as $dataKey => $config) {
              $oldValue = $rapat->{$config['db_field']};
-             $newValue = $data[$dataKey] ?? null;
+             $newValue = isset($data[$dataKey]) ? $data[$dataKey] : null;
              
              // Compare values (handle null and type casting)
              $oldNormalized = ($config['type'] === 'zoom') ? (int)$oldValue : $oldValue;
