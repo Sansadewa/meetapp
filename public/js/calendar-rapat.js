@@ -1208,20 +1208,21 @@
                                         Swal.showValidationMessage(
                                             `Gagal membuat rapat: ${err}`
                                         );
+                                        return false;
                                     })
                                 },
                                 allowOutsideClick: () => !Swal.isLoading()
                             }).then(function(val) {
                                 // console.log(val);
-                                // Only show success message if the operation was successful (val.isConfirmed and no validation errors)
-                                if (val.isConfirmed && !val.dismiss) {
+                                // Only show success message if the operation was successful
+                                if (val.value) {
                                     Swal.fire({
                                         type: 'success',
                                         title: 'Sukses!',
                                         html: `<p style="font-size: smaller">Berhasil menambah data rapat!</p>`
                                     });
                                 }
-                            })                                                
+                            })
 
                             // console.log(moment(start).format(), moment(end).subtract(1, 'days').format(), categoryClass);
                             // $this.$calendarObj.fullCalendar('renderEvent', {
