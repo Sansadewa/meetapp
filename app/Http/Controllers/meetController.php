@@ -844,6 +844,7 @@ class meetController extends Controller
      {
          $uk_user = session('unit_kerja');
          $lv_user = session('level');
+         $user_id = session('user_id');
          $tahun = $request->input('tahun', date('Y'));
          
          $rapat = RapatModel::select(
@@ -857,16 +858,39 @@ class meetController extends Controller
                  'rapat.waktu_selesai_rapat',
                  'rapat.use_zoom',
                  'rapat.is_notulensi',
+                 'rapat.unit_kerja',
                  'unit_kerja.nama as nama_unit_kerja'
              )
              ->leftJoin('unit_kerja', 'unit_kerja.id', '=', 'rapat.unit_kerja')
              ->whereYear('rapat.tanggal_rapat_start', $tahun)
-             ->where(function($query) use ($uk_user, $lv_user) {
+             ->where(function($query) use ($uk_user, $lv_user, $user_id) {
                  if($lv_user != '2')
                  {
-                     $query->where('unit_kerja', $uk_user);
+                     // For regular users: show meetings organized by their unit
+                     // OR meetings where user/unit is an attendee
+                     $query->where(function($q) use ($uk_user, $user_id) {
+                         $q->where('rapat.unit_kerja', $uk_user)
+                           ->orWhereIn('rapat.id', function($subquery) use ($user_id, $uk_user) {
+                               // Meetings where this user is an attendee
+                               $subquery->select('rapat_id')
+                                   ->from('rapat_user')
+                                   ->where(function($subq) use ($user_id, $uk_user) {
+                                       $subq->where(function($sq) use ($user_id) {
+                                           // User as individual attendee
+                                           $sq->where('attendee_id', $user_id)
+                                             ->where('attendee_type', 'App\UserModel');
+                                       })
+                                       ->orWhere(function($sq) use ($uk_user) {
+                                           // User's unit as attendee
+                                           $sq->where('attendee_id', $uk_user)
+                                             ->where('attendee_type', 'App\UnitKerjaModel');
+                                       });
+                                   });
+                           });
+                     });
                  }
              })
+             ->distinct()
              ->get();
          
          echo json_encode($rapat);
