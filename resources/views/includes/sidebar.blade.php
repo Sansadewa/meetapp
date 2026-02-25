@@ -33,6 +33,11 @@
                     </a>
                 </li>
                 @endif
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark {{ last(request()->segments()) == 'settings' ? 'active' : '' }}" style="padding: 12px 20px 12px 8px" href="{{ url('/settings') }}" aria-expanded="false">
+                        <i class="mdi mdi-settings"></i><span class="hide-menu">Pengaturan</span>
+                    </a>
+                </li>
                 <!-- <li class="nav-small-cap"><i class="mdi mdi-dots-horizontal"></i> <span class="hide-menu">Apps</span></li>
                 <li class="sidebar-item"> <a class="sidebar-link two-column has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i data-feather="grid" class="feather-icon"></i><span class="hide-menu">Apps </span></a>
                     <ul aria-expanded="false" class="collapse first-level">

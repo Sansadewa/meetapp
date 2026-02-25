@@ -56,6 +56,9 @@ Route::group(["middleware" => "is_authenticated"], function() {
     Route::get('/get-calon-host', 'meetController@getCalonHost');
     Route::post('/get-zoom-host', 'meetController@getZoomHost');
     Route::post('/save-edit-host', 'meetController@editHost');
+
+    Route::get('/settings', 'meetController@getSettingsPage');
+    Route::post('/update-settings', 'meetController@updateSettings');
     // Route::get('/cek123', function(){
     //     echo json_encode(array('result' => 'ok'));
     // });

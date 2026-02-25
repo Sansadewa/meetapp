@@ -126,9 +126,8 @@
                                         <h4 class="mb-0">{{session('nama')}}</h4>
                                         <p class="text-muted mb-1 font-14">{{ session('nama_unit_kerja') ? session('nama_unit_kerja') : (session('level') == '2' ? 'Administrator' : '') }}
                                         </p>
-                                        <a href="./profile"
-                                            class="btn btn-rounded btn-danger btn-sm text-white d-inline-block">Lihat
-                                            Profile</a>
+                                        <a href="./settings"
+                                            class="btn btn-rounded btn-danger btn-sm text-white d-inline-block">Pengaturan</a>
                                     </div>
                                 </div>
                             </li>

@@ -25,8 +25,10 @@ class KirimAgendaHarian extends Command
         $totalUsers = 0;
         $totalDispatched = 0;
 
-        // Get all active users
-        $users = UserModel::where('is_active', 1)->get();
+        // Get all active users who are subscribed to daily agenda emails
+        $users = UserModel::where('is_active', 1)
+            ->where('is_subscribe', 1)
+            ->get();
 
         foreach ($users as $user) {
             $totalUsers++;
