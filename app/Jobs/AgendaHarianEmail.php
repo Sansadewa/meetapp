@@ -26,6 +26,10 @@ class AgendaHarianEmail implements ShouldQueue
     public function handle()
     {
         try {
+            $delayMs = (int) env('MAIL_SEND_DELAY_MS', 0);
+            if ($delayMs > 0) {
+                usleep($delayMs * 1000);
+            }
             $email = $this->user->username . '@bps.go.id';
             Mail::to($email)->send(new AgendaHarian($this->user, $this->meetings));
         } catch (\Exception $e) {

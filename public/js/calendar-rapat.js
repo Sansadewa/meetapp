@@ -804,7 +804,7 @@
                             }
                         });
                         
-                        if (nama_rapat !== null && nama_rapat.length != 0 && akhir_rapat != '' && mulai_rapat != '' && is_use_zoom != null) {
+                        if (nama_rapat !== null && nama_rapat.length != 0 && akhir_rapat != '' && mulai_rapat != '' && is_use_zoom != null && attendeesListEdit.length > 0) {
                             if (moment(mulai_rapat, 'hh:mm').isAfter(moment(akhir_rapat, 'hh:mm')) || moment(mulai_rapat, 'hh:mm').isSame(moment(akhir_rapat, 'hh:mm'))) {
                                 Swal.fire({
                                     type: 'error',
@@ -1198,7 +1198,7 @@
                         ruang_rapat=form.find("input[name='ruang_lainnya']").val().trim()
                     }
                     
-                    if (ruang_rapat !== null && ruang_rapat.length != 0 && nama_rapat !== null && nama_rapat.length != 0 && akhir_rapat != '' && mulai_rapat != '' && is_use_zoom != null) {
+                    if (ruang_rapat !== null && ruang_rapat.length != 0 && nama_rapat !== null && nama_rapat.length != 0 && akhir_rapat != '' && mulai_rapat != '' && is_use_zoom != null && attendees.length > 0) {
                         if (moment(mulai_rapat, 'hh:mm').isAfter(moment(akhir_rapat, 'hh:mm')) || moment(mulai_rapat, 'hh:mm').isSame(moment(akhir_rapat, 'hh:mm'))) {
                             Swal.fire({
                                 type: 'error',

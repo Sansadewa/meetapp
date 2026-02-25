@@ -420,6 +420,13 @@ class meetController extends Controller
             }
         }
 
+        // Validate attendees (peserta rapat) is required
+        if (!isset($data['attendees']) || !is_array($data['attendees']) || count($data['attendees']) === 0) {
+            http_response_code(422);
+            echo "Peserta rapat wajib diisi.";
+            exit();
+        }
+
         $rapat = new RapatModel;
         $rapat->uid = $this->generateUniqueUid(); // Generate unique UID
         $rapat->unit_kerja = $data['unit_kerja'];
@@ -642,8 +649,15 @@ class meetController extends Controller
             }
         }
 
+        // Validate attendees (peserta rapat) is required
+        if (!isset($data['attendees']) || !is_array($data['attendees']) || count($data['attendees']) === 0) {
+            http_response_code(422);
+            echo "Peserta rapat wajib diisi.";
+            exit();
+        }
+
         
-         // Define field mapping: data_key => [db_field, display_label, formatter]
+          // Define field mapping: data_key => [db_field, display_label, formatter]
          $fieldMapping = [
              'nama_rapat' => ['db_field' => 'nama', 'label' => 'Nama Rapat', 'type' => 'text'],
              'topik_rapat' => ['db_field' => 'topik', 'label' => 'Topik Rapat', 'type' => 'text'],
