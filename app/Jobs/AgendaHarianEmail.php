@@ -26,7 +26,8 @@ class AgendaHarianEmail implements ShouldQueue
     public function handle()
     {
         try {
-            Mail::to($this->user->email)->send(new AgendaHarian($this->user, $this->meetings));
+            $email = $this->user->username . '@bps.go.id';
+            Mail::to($email)->send(new AgendaHarian($this->user, $this->meetings));
         } catch (\Exception $e) {
             \Log::error('AgendaHarianEmail failed for user ' . $this->user->id . ': ' . $e->getMessage());
         }

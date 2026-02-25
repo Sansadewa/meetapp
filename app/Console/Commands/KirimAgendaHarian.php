@@ -77,8 +77,6 @@ class KirimAgendaHarian extends Command
 
             // Only dispatch if user has meetings
             if (count($meetings) > 0) {
-                // Generate email from username@bps.go.id
-                $user->email = $user->username . '@bps.go.id';
                 dispatch(new AgendaHarianEmail($user, $meetings));
                 $totalDispatched++;
             }
