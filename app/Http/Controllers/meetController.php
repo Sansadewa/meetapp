@@ -1784,4 +1784,63 @@ class meetController extends Controller
         echo json_encode(['result' => 'success', 'message' => 'Pengaturan telah disimpan.']);
     }
 
+    /**
+     * Update user password
+     */
+    public function updatePassword(Request $request)
+    {
+        $data = $request->data ?: $request->all();
+
+        $userId = session('user_id');
+        $user = UserModel::find($userId);
+
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode(['result' => 'error', 'message' => 'User not found']);
+            exit;
+        }
+
+        // Get input
+        $passwordOld = isset($data['password_old']) ? $data['password_old'] : '';
+        $passwordNew = isset($data['password_new']) ? $data['password_new'] : '';
+
+        // Validate inputs
+        if (empty($passwordOld) || empty($passwordNew)) {
+            http_response_code(422);
+            echo json_encode(['result' => 'error', 'message' => 'Password lama dan password baru harus diisi.']);
+            exit;
+        }
+
+        if (strlen($passwordNew) < 6) {
+            http_response_code(422);
+            echo json_encode(['result' => 'error', 'message' => 'Password baru harus minimal 6 karakter.']);
+            exit;
+        }
+
+        // Verify current password (MD5 hash - matching existing login system)
+        $oldPasswordHash = md5($passwordOld);
+        if ($oldPasswordHash !== $user->password) {
+            http_response_code(401);
+            echo json_encode(['result' => 'error', 'message' => 'Password lama anda tidak sesuai.']);
+            exit;
+        }
+
+        // Hash new password (MD5 - consistent with existing auth)
+        $newPasswordHash = md5($passwordNew);
+
+        // Prevent same password
+        if ($newPasswordHash === $user->password) {
+            http_response_code(422);
+            echo json_encode(['result' => 'error', 'message' => 'Password baru harus berbeda dengan password lama.']);
+            exit;
+        }
+
+        // Update password
+        $user->password = $newPasswordHash;
+        $user->save();
+
+        http_response_code(200);
+        echo json_encode(['result' => 'success', 'message' => 'Password telah diubah.']);
+    }
+
 }

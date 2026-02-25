@@ -59,6 +59,7 @@ Route::group(["middleware" => "is_authenticated"], function() {
 
     Route::get('/settings', 'meetController@getSettingsPage');
     Route::post('/update-settings', 'meetController@updateSettings');
+    Route::post('/update-password', 'meetController@updatePassword');
     // Route::get('/cek123', function(){
     //     echo json_encode(array('result' => 'ok'));
     // });

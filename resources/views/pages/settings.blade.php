@@ -207,6 +207,76 @@ Pengaturan Pengguna
             </div>
         </div>
     </div>
+
+    <!-- Password Change Card -->
+    <div class="col-lg-8 col-md-10 col-12 mt-4">
+        <div class="card settings-card">
+            <div class="card-header">
+                <h5><i class="mdi mdi-lock mr-2"></i>Ubah Password</h5>
+            </div>
+            <div class="card-body">
+                <form id="password-form">
+                    @csrf
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="password_old">Password Lama</label>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="password_old" 
+                                    name="password_old" 
+                                    placeholder="Masukkan password saat ini"
+                                    autocomplete="off"
+                                >
+                                <small class="text-muted d-block mt-2">Masukkan password anda yang saat ini untuk verifikasi.</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password_new">Password Baru</label>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="password_new" 
+                                    name="password_new" 
+                                    placeholder="Minimal 6 karakter"
+                                    autocomplete="off"
+                                >
+                                <small class="text-muted d-block mt-2">Password harus minimal 6 karakter.</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password_confirm">Konfirmasi Password Baru</label>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="password_confirm" 
+                                    name="password_confirm" 
+                                    placeholder="Ulangi password baru"
+                                    autocomplete="off"
+                                >
+                                <small class="text-muted d-block mt-2">Pastikan password baru anda sama.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="row mt-4 pt-3 border-top">
+                        <div class="col-12">
+                            <button type="submit" class="btn-save" id="password-submit-btn">
+                                <i class="fa fa-save mr-2"></i>Ubah Password
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -268,6 +338,81 @@ $(document).ready(function () {
             error: function (err) {
                 $('#submit-btn').prop('disabled', false).html('<i class="fa fa-save mr-2"></i>Simpan Perubahan');
                 let errMsg = err.responseJSON?.message || err.responseText || 'Terjadi kesalahan saat menyimpan.';
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error!',
+                    html: '<p style="font-size:smaller">' + errMsg + '</p>'
+                });
+            }
+        });
+
+        return false;
+    });
+
+    // Password form submission
+    $('#password-form').on('submit', function (e) {
+        e.preventDefault();
+        
+        let password_old = $('#password_old').val(),
+            password_new = $('#password_new').val(),
+            password_confirm = $('#password_confirm').val();
+
+        // Validation
+        if (!password_old || !password_new || !password_confirm) {
+            Swal.fire({
+                type: 'error',
+                title: 'Error!',
+                html: '<p style="font-size:smaller">Semua field password harus diisi.</p>'
+            });
+            return false;
+        }
+
+        if (password_new.length < 6) {
+            Swal.fire({
+                type: 'error',
+                title: 'Error!',
+                html: '<p style="font-size:smaller">Password baru harus minimal 6 karakter.</p>'
+            });
+            return false;
+        }
+
+        if (password_new !== password_confirm) {
+            Swal.fire({
+                type: 'error',
+                title: 'Error!',
+                html: '<p style="font-size:smaller">Password baru dan konfirmasi password tidak sama.</p>'
+            });
+            return false;
+        }
+
+        // Disable submit button
+        $('#password-submit-btn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin mr-2"></i>Mengubah...');
+
+        // Send AJAX
+        $.ajax({
+            url: base_url + '/update-password',
+            dataType: 'json',
+            type: 'POST',
+            data: {
+                _token: token,
+                password_old: password_old,
+                password_new: password_new
+            },
+            success: function (data) {
+                Swal.fire({
+                    type: 'success',
+                    title: 'Sukses!',
+                    html: '<p style="font-size:smaller">Password anda telah diubah.</p>',
+                    didClose: function () {
+                        // Clear form
+                        $('#password-form')[0].reset();
+                        $('#password-submit-btn').prop('disabled', false).html('<i class="fa fa-save mr-2"></i>Ubah Password');
+                    }
+                });
+            },
+            error: function (err) {
+                $('#password-submit-btn').prop('disabled', false).html('<i class="fa fa-save mr-2"></i>Ubah Password');
+                let errMsg = err.responseJSON?.message || err.responseText || 'Terjadi kesalahan saat mengubah password.';
                 Swal.fire({
                     type: 'error',
                     title: 'Error!',
