@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\KirimAgendaHarian::class,
     ];
 
     /**
@@ -41,6 +41,8 @@ class Kernel extends ConsoleKernel
             curl_close($ch);
         });
 
+        // Send daily meeting agenda email to users
+        $schedule->command('agenda:harian')->dailyAt('06:00');
 
         // $schedule->call('App\Http\Controllers\meetController@reminderRuangRapat'); // kirim reminder ke umum
 
