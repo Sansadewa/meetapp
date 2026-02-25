@@ -7,8 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Mail;
-use App\Mail\AgendaHarian;
+use Carbon\Carbon;
 
 class AgendaHarianEmail implements ShouldQueue
 {
@@ -30,8 +29,66 @@ class AgendaHarianEmail implements ShouldQueue
             if ($delayMs > 0) {
                 usleep($delayMs * 1000);
             }
-            $email = $this->user->username . '@bps.go.id';
-            Mail::to($email)->send(new AgendaHarian($this->user, $this->meetings));
+
+            $tanggal = Carbon::now('Asia/Makassar')->format('j F Y');
+            $email   = $this->user->username . '@bps.go.id';
+            $subject = 'Agenda Rapat Anda Hari Ini - ' . $tanggal;
+
+            // Render Blade view to HTML string
+            $bodyHtml = view('emails.agenda_harian', [
+                'user'     => $this->user,
+                'meetings' => $this->meetings,
+                'tanggal'  => $tanggal,
+            ])->render();
+
+            $relayUrl   = env('MAIL_RELAY_URL', '');
+            $relayToken = env('MAIL_RELAY_TOKEN', '');
+            $fromAddress = env('MAIL_FROM_ADDRESS', 'meetapp@bps.go.id');
+            $fromName    = env('MAIL_FROM_NAME', 'MeetApp Kalsel');
+
+            if (empty($relayUrl)) {
+                \Log::error('AgendaHarianEmail: MAIL_RELAY_URL is not set.');
+                return;
+            }
+
+            $payload = json_encode([
+                'to'           => $email,
+                'subject'      => $subject,
+                'body_html'    => $bodyHtml,
+                'from_address' => $fromAddress,
+                'from_name'    => $fromName,
+                'token'        => $relayToken,
+            ]);
+
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $relayUrl);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($payload),
+            ]);
+            $response  = curl_exec($ch);
+            $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+
+            if ($curlError) {
+                \Log::error('AgendaHarianEmail cURL error for user ' . $this->user->id . ': ' . $curlError);
+                return;
+            }
+
+            $result = json_decode($response, true);
+
+            if ($httpCode !== 200 || (isset($result['status']) && $result['status'] !== 'sent')) {
+                $errMsg = isset($result['message']) ? $result['message'] : $response;
+                \Log::error('AgendaHarianEmail relay error for user ' . $this->user->id . ' (' . $email . '): ' . $errMsg);
+            }
+
         } catch (\Exception $e) {
             \Log::error('AgendaHarianEmail failed for user ' . $this->user->id . ': ' . $e->getMessage());
         }
