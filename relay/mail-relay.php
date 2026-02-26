@@ -18,13 +18,13 @@ declare(strict_types=1);
 // CONFIGURATION — edit these values before deploying
 // ============================================================
 
-define('SMTP_HOST',       'smtp.example.com');
+define('SMTP_HOST',       'smtp.bps.go.id');
 define('SMTP_PORT',       587);
-define('SMTP_USERNAME',   'your-smtp-username');
-define('SMTP_PASSWORD',   'your-smtp-password');
+define('SMTP_USERNAME',   'pst6300');
+define('SMTP_PASSWORD',   'kalselpst');
 define('SMTP_ENCRYPTION', 'tls');           // 'tls' = STARTTLS on port 587 | 'ssl' = port 465
 
-define('RELAY_TOKEN',     'your-shared-secret-token');  // Must match MAIL_RELAY_TOKEN in MeetApp .env
+define('RELAY_TOKEN',     'howdoyouturnthison');  // Must match MAIL_RELAY_TOKEN in MeetApp .env
 
 define('LOG_FILE',        __DIR__ . '/mail-relay.log');  // Log file path (must be writable)
 define('LOG_MAX_BYTES',   5 * 1024 * 1024);              // Rotate log at 5MB
