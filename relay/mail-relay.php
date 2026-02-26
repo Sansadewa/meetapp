@@ -72,7 +72,7 @@ if (empty($token) || $token !== RELAY_TOKEN) {
 
 $to          = trim($payload['to']           ?? '');
 $subject     = trim($payload['subject']      ?? '');
-$bodyHtml    = $payload['body_html']         ?? '';
+$bodyHtml    = base64_decode($payload['body_html'] ?? '');
 $fromAddress = trim($payload['from_address'] ?? '');
 $fromName    = trim($payload['from_name']    ?? '');
 

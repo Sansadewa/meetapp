@@ -54,7 +54,7 @@ class AgendaHarianEmail implements ShouldQueue
             $payload = json_encode([
                 'to'           => $email,
                 'subject'      => $subject,
-                'body_html'    => $bodyHtml,
+                'body_html'    => base64_encode($bodyHtml),
                 'from_address' => $fromAddress,
                 'from_name'    => $fromName,
                 'token'        => $relayToken,
