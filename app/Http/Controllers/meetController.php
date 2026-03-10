@@ -611,7 +611,7 @@ class meetController extends Controller
          if ($user && $user->level != '2') {
              $user_unit_kerja_ids = $user->unitKerja()
                  ->wherePivot('tahun', date('Y'))
-                 ->pluck('id')
+                 ->pluck('unit_kerja.id')
                  ->toArray();
          }
          

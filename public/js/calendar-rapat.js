@@ -397,7 +397,7 @@
                     
                     $row.append(`<div class='col-md-12 mb-4'><hr style="border-top: 1px solid rgba(0, 0, 0, 0.2);">
                         <div class='form-group' style='position: relative;'>
-                            <label class='control-label' data-base-label="Peserta Rapat">Peserta Rapat <span class="badge badge-info" id="attendees_count_edit">(Total: 0)</span></label>
+                            <label class='control-label' data-base-label="Peserta Rapat">Peserta Rapat <span style="color:red">*</span><span class="badge badge-info" id="attendees_count_edit">(Total: 0)</span></label>
                             <input type='text' class='form-control' id='attendees_search_edit' placeholder='Cari peserta (User atau Unit Kerja)...' ${!dtr.allow_edit ? 'disabled' : ''} autocomplete='off' />
                             <small class="form-text text-muted">Ketik minimal 2 karakter untuk mencari</small>
                             <div id='attendees_autocomplete_edit' class='list-group' style='position: absolute; z-index: 1000; max-height: 200px; overflow-y: auto; display: none; width: calc(100% - 30px); margin-top: 2px; border: 1px solid #ddd; border-radius: 4px;'></div>
