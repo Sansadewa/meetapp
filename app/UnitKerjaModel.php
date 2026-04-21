@@ -8,10 +8,12 @@ class UnitKerjaModel extends Model
 {
     protected $table = 'unit_kerja';
     public $timestamps = false;
+    protected $fillable = ['nama', 'singkatan', 'class_bg', 'tahun'];
     
     public function users()
     {
-        return $this->belongsToMany('App\UserModel', 'unit_kerja_user', 'unit_kerja_model_id', 'user_model_id');
+        return $this->belongsToMany('App\UserModel', 'unit_kerja_user', 'unit_kerja_model_id', 'user_model_id')
+                    ->withPivot('tahun');
     }
     
 }

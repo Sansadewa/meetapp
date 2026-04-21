@@ -29,7 +29,12 @@
                 @if(session('level') == '2')
                 <li class="sidebar-item">
                     <a class="sidebar-link waves-effect waves-dark {{ last(request()->segments()) == 'request-zoom' ? 'active' : '' }}" style="padding: 12px 20px 12px 8px" href="{{ url('/request-zoom') }}" aria-expanded="false">
-                        <i class="fas fa-video"></i><span class="hide-menu">Manajemen Zoom</span>                        
+                        <i class="fas fa-video"></i><span class="hide-menu">Manajemen Zoom</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link waves-effect waves-dark {{ request()->is('admin/unit-kerja-users*') ? 'active' : '' }}" style="padding: 12px 20px 12px 8px" href="{{ url('/admin/unit-kerja-users') }}" aria-expanded="false">
+                        <i class="fas fa-users"></i><span class="hide-menu">Manajemen Unit Kerja</span>
                     </a>
                 </li>
                 @endif

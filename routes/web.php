@@ -60,6 +60,17 @@ Route::group(["middleware" => "is_authenticated"], function() {
     Route::get('/settings', 'UserController@getSettingsPage');
     Route::post('/update-settings', 'UserController@updateSettings');
     Route::post('/update-password', 'UserController@updatePassword');
+
+    Route::get('/admin/unit-kerja-users', 'UnitKerjaUserController@getIndex');
+    Route::get('/admin/unit-kerja-users/list', 'UnitKerjaUserController@getUnitKerjaList');
+    Route::post('/admin/unit-kerja-users/store', 'UnitKerjaUserController@postAddUnitKerja');
+    Route::post('/admin/unit-kerja-users/update', 'UnitKerjaUserController@postEditUnitKerja');
+    Route::post('/admin/unit-kerja-users/delete', 'UnitKerjaUserController@postDeleteUnitKerja');
+    Route::get('/admin/unit-kerja-users/{unitId}/users', 'UnitKerjaUserController@getUnitUsers');
+    Route::get('/admin/unit-kerja-users/{unitId}/available-users', 'UnitKerjaUserController@getAvailableUsers');
+    Route::post('/admin/unit-kerja-users/remove', 'UnitKerjaUserController@postRemoveUser');
+    Route::post('/admin/unit-kerja-users/bulk-add', 'UnitKerjaUserController@postBulkAddUsers');
+    Route::post('/admin/unit-kerja-users/bulk-remove', 'UnitKerjaUserController@postBulkRemoveUsers');
     // Route::get('/cek123', function(){
     //     echo json_encode(array('result' => 'ok'));
     // });
